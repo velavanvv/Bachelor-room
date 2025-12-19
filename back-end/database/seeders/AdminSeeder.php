@@ -16,7 +16,7 @@ public function run()
         'email' => 'admin@gmail.com',
         'phone' => '9999999999',
         'role' => 'admin',
-        'password' => Hash::make('admin123'),
+        'password' => Hash::make('#######'),
     ]);
 }
 }
