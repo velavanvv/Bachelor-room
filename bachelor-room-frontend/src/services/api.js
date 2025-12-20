@@ -2,10 +2,11 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
+  baseURL: 'http://localhost:8000/api', // Use full URL
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
   },
 });
 
@@ -15,6 +16,10 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Don't add XSRF token for API calls
+    delete config.headers['X-XSRF-TOKEN'];
+    
     return config;
   },
   (error) => {
@@ -28,8 +33,16 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+     
       toast.error('Session expired. Please login again.');
+       window.location.href = '/login';
+    } else if (error.response?.status === 419) {
+      // CSRF token mismatch - clear tokens and redirect
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+     
+      toast.error('Session expired. Please login again.');
+    window.location.href = '/login';
     }
     return Promise.reject(error);
   }
