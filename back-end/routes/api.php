@@ -1,39 +1,54 @@
 <?php
 
-use App\Http\Controllers\ContributionController;
-use App\Http\Controllers\ExpenseController;
-use App\Http\Controllers\WalletController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\UserController as PublicUserController;
 
-Route::post('/login', [AuthController::class, 'login']);
+// Test public route
+Route::get('/test', function () {
+    return response()->json([
+        'success' => true,
+        'message' => 'API is working without CSRF!',
+        'timestamp' => now(),
+    ]);
+});
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
+// Public auth routes
+Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
 
-    // Users
-    Route::get('/users', [PublicUserController::class, 'index']);
-
-    // Admin only
-    Route::middleware('admin')->group(function () {
-        Route::get('/admin/users', [UserController::class, 'index']);
-        Route::post('/admin/create-member', [UserController::class, 'createMember']);
+// Protected routes - ONLY auth:sanctum middleware
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout']);
+    
+    // Test authenticated route
+    Route::get('/check-auth', function () {
+        return response()->json([
+            'authenticated' => true,
+            'user' => auth()->user()->only(['id', 'name', 'email', 'role']),
+        ]);
     });
-
-    // Expenses
-    Route::get('/expenses', [ExpenseController::class, 'index']);
-    Route::post('/expenses', [ExpenseController::class, 'store']);
-    Route::get('/expenses/recent', [ExpenseController::class, 'recent']);
-    Route::get('/expenses/month/{month}', [ExpenseController::class, 'byMonth']);
-    Route::delete('/expenses/{id}', [ExpenseController::class, 'destroy']);
-
+  
+    // User routes
+    Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index']);
+    
+    // Admin routes
+    Route::prefix('admin')->middleware('admin')->group(function () {
+        Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'getAllUsers']);
+        Route::post('/create-member', [App\Http\Controllers\Admin\UserController::class, 'createMember']);
+        Route::put('/users/{id}/role', [App\Http\Controllers\Admin\UserController::class, 'updateRole']);
+        Route::delete('/users/{id}', [App\Http\Controllers\Admin\UserController::class, 'destroy']);
+    });
+    
     // Contributions
-    Route::post('/contributions/pay', [ContributionController::class, 'pay']);
-    Route::get('/contributions/month/{month}', [ContributionController::class, 'getByMonth']);
-
+    Route::post('/contributions/pay', [App\Http\Controllers\ContributionController::class, 'pay']);
+    Route::get('/contributions/month/{month}', [App\Http\Controllers\ContributionController::class, 'getByMonth']);
+    
+    // Expenses
+    Route::get('/expenses', [App\Http\Controllers\ExpenseController::class, 'index']);
+    Route::post('/expenses', [App\Http\Controllers\ExpenseController::class, 'store']);
+    Route::get('/expenses/recent', [App\Http\Controllers\ExpenseController::class, 'recent']);
+    Route::get('/expenses/month/{month}', [App\Http\Controllers\ExpenseController::class, 'byMonth']);
+    Route::delete('/expenses/{id}', [App\Http\Controllers\ExpenseController::class, 'destroy']);
+    
     // Wallet
-    Route::get('/wallet/{month}', [WalletController::class, 'show']);
-    Route::get('/wallet/current', [WalletController::class, 'currentMonth']);
+    Route::get('/wallet/{month}', [App\Http\Controllers\WalletController::class, 'show']);
+    Route::get('/wallet/current', [App\Http\Controllers\WalletController::class, 'currentMonth']);
 });
