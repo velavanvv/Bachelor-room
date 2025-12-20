@@ -7,6 +7,8 @@ import {
   FiCreditCard,
   FiPieChart,
   FiUsers,
+  FiUser,
+  FiSettings,
   FiLogOut,
 } from 'react-icons/fi';
 
@@ -23,10 +25,10 @@ const Sidebar = () => {
   const adminMenu = [
     { to: '/admin', icon: FiHome, label: 'Admin Dashboard' },
     { to: '/admin/users', icon: FiUsers, label: 'Manage Users' },
-    ...memberMenu,
+    { to: '/admin/settings', icon: FiSettings, label: 'Settings' },
   ];
 
-  const menuItems = isAdmin() ? adminMenu : memberMenu;
+  const menuItems = isAdmin() ? [...adminMenu, ...memberMenu] : memberMenu;
 
   return (
     <div className="w-64 bg-gray-900 text-white min-h-screen">
@@ -53,6 +55,15 @@ const Sidebar = () => {
       </nav>
       
       <div className="absolute bottom-0 w-64 p-6 border-t border-gray-800">
+        <div className="flex items-center mb-4">
+          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+            <FiUser />
+          </div>
+          <div>
+            <p className="text-sm">Logged in as</p>
+            <p className="text-sm font-medium">{isAdmin() ? 'Admin' : 'Member'}</p>
+          </div>
+        </div>
         <button
           onClick={logout}
           className="flex items-center text-gray-300 hover:text-white w-full"

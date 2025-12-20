@@ -7,6 +7,7 @@ import Sidebar from './components/Layout/Sidebar';
 import Navbar from './components/Layout/Navbar';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/AdminUsers';
 import Contributions from './pages/Contributions';
 import Expenses from './pages/Expenses';
 import Wallet from './pages/Wallet';
@@ -61,6 +62,12 @@ function App() {
           <Route path="/admin" element={
             <ProtectedRoute adminOnly={true}>
               <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin/users" element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminUsers />
             </ProtectedRoute>
           } />
           
