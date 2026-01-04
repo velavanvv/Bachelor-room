@@ -1,101 +1,303 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles */
 @layer base {
+  :root {
+    --primary: #3b82f6;
+    --primary-dark: #2563eb;
+    --secondary: #6b7280;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --light: #f9fafb;
+    --dark: #111827;
+  }
+
   body {
-    @apply bg-gray-50;
+    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Better scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
   }
 }
 
 @layer components {
-  .btn-primary {
-    @apply bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors;
+  /* Responsive containers */
+  .container-responsive {
+    @apply w-full px-4 mx-auto;
   }
   
-  .btn-secondary {
-    @apply bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors;
+  @screen sm {
+    .container-responsive {
+      @apply px-6;
+    }
   }
   
-  .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
+  @screen lg {
+    .container-responsive {
+      @apply max-w-7xl;
+    }
   }
-  
+
+  /* Cards */
   .card {
-    @apply bg-white rounded-lg shadow-md p-6;
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6;
+  }
+
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-md hover:border-gray-300;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+  }
+
+  .btn-secondary {
+    @apply btn bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500;
+  }
+
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+  }
+
+  .btn-success {
+    @apply btn bg-green-600 text-white hover:bg-green-700 focus:ring-green-500;
+  }
+
+  /* Forms */
+  .input-label {
+    @apply block text-sm font-medium text-gray-700 mb-1.5;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white;
+  }
+
+  .input-error {
+    @apply border-red-300 focus:ring-red-500;
+  }
+
+  /* Tables */
+  .table-responsive {
+    @apply w-full overflow-x-auto rounded-lg border border-gray-200;
+  }
+
+  .table {
+    @apply min-w-full divide-y divide-gray-200;
+  }
+
+  .table th {
+    @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50;
+  }
+
+  .table td {
+    @apply px-4 py-3 whitespace-nowrap text-sm text-gray-900;
+  }
+
+  /* Navigation */
+  .nav-item {
+    @apply flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors;
+  }
+
+  .nav-item-active {
+    @apply bg-primary-600 text-white;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply badge bg-green-100 text-green-800;
+  }
+
+  .badge-warning {
+    @apply badge bg-yellow-100 text-yellow-800;
+  }
+
+  .badge-danger {
+    @apply badge bg-red-100 text-red-800;
+  }
+
+  .badge-info {
+    @apply badge bg-blue-100 text-blue-800;
+  }
+
+  /* Loaders */
+  .loader {
+    @apply animate-spin rounded-full border-2 border-gray-300 border-t-primary-600;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50;
+  }
+
+  .modal-content {
+    @apply bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto;
+  }
+
+  /* Grid */
+  .grid-responsive {
+    @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+
+  /* Typography */
+  .heading-1 {
+    @apply text-2xl sm:text-3xl font-bold text-gray-900;
+  }
+
+  .heading-2 {
+    @apply text-xl sm:text-2xl font-semibold text-gray-800;
+  }
+
+  .heading-3 {
+    @apply text-lg sm:text-xl font-medium text-gray-700;
+  }
+
+  .body-text {
+    @apply text-sm sm:text-base text-gray-600;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 640px) {
+    .hide-on-mobile {
+      @apply hidden;
+    }
+    
+    .show-on-mobile {
+      @apply block;
+    }
+  }
+
+  @media (min-width: 641px) {
+    .hide-on-desktop {
+      @apply hidden;
+    }
+    
+    .show-on-desktop {
+      @apply block;
+    }
   }
 }
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+/* Add these styles to your existing index.css */
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Door opening animation */
+.door-open {
+  transform: rotateY(-90deg) !important;
+  transform-origin: right center;
 }
 
-#root{
-  width:100%;
+/* 3D room effect */
+.room-3d {
+  transform-style: preserve-3d;
+  perspective: 1000px;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+/* Room door hover effect */
+.room-door {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.3s ease;
+  transform-origin: right center;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  justify-content: center;
-  min-width: 320px;
-  min-height: 100vh;
+.room-door:hover {
+  transform: translateX(-10px) rotateY(-10deg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* Wall texture */
+.wall-texture {
+  background-image: 
+    linear-gradient(90deg, transparent 79px, #374151 79px, #374151 81px, transparent 81px),
+    linear-gradient(#1f2937 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px;
+  background-position: 0 0, 0 0;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+/* Floating animation for rooms */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
   }
-  a:hover {
-    color: #747bff;
+  50% {
+    transform: translateY(-10px);
   }
-  button {
-    background-color: #f9f9f9;
-  }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Glow effect */
+.glow-effect {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+/* Neon sign effect */
+.neon-text {
+  text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #0ff;
+}
+
+/* Room button */
+.btn-room {
+  @apply bg-gradient-to-r from-gray-700 to-gray-800 
+         text-white font-medium rounded-lg 
+         px-6 py-3;
+}
+
+/* Room card */
+.room-card {
+  @apply bg-gradient-to-br from-gray-800 to-gray-900 
+         rounded-2xl border border-gray-700 
+         shadow-2xl;
+}
+
+/* Door knob animation */
+@keyframes knobTurn {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(90deg); }
+}
+
+.knob-turn {
+  animation: knobTurn 0.5s ease forwards;
+}
+
+/* Add smooth transitions for sidebar */
+.sidebar-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Room grid pattern */
+.room-grid-bg {
+  background-image: 
+    linear-gradient(rgba(31, 41, 55, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 41, 55, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
 }

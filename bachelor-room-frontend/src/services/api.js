@@ -2,7 +2,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api', // Use full URL
+  baseURL: 'http://192.168.1.2:8000/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -16,10 +16,6 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
-    // Don't add XSRF token for API calls
-    delete config.headers['X-XSRF-TOKEN'];
-    
     return config;
   },
   (error) => {
@@ -33,19 +29,49 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-     
+      window.location.href = '/login';
       toast.error('Session expired. Please login again.');
-       window.location.href = '/login';
     } else if (error.response?.status === 419) {
-      // CSRF token mismatch - clear tokens and redirect
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-     
+      window.location.href = '/login';
       toast.error('Session expired. Please login again.');
-    window.location.href = '/login';
     }
     return Promise.reject(error);
   }
 );
+
+// API Service Functions
+export const apiService = {
+  // Auth
+  login: (email, password) => api.post('/login', { email, password }),
+  logout: () => api.post('/logout'),
+  
+  // Users
+  getUsers: () => api.get('/users'),
+  getAllUsers: () => api.get('/admin/users'),
+  createUser: (userData) => api.post('/admin/create-member', userData),
+  updateUserRole: (id, role) => api.put(`/admin/users/${id}/role`, { role }),
+  deleteUser: (id) => api.delete(`/admin/users/${id}`),
+  
+  // Contributions
+  payContribution: (data) => api.post('/contributions/pay', data),
+  getContributionsByMonth: (month) => api.get(`/contributions/month/${month}`),
+  
+  // Expenses
+  getExpenses: () => api.get('/expenses'),
+  getRecentExpenses: () => api.get('/expenses/recent'),
+  getExpensesByMonth: (month) => api.get(`/expenses/month/${month}`),
+  createExpense: (data) => api.post('/expenses', data),
+  deleteExpense: (id) => api.delete(`/expenses/${id}`),
+  
+  // Wallet
+  getWalletByMonth: (month) => api.get(`/wallet/${month}`),
+  getCurrentWallet: () => api.get('/wallet/current'),
+  
+  // Dashboard
+  getDashboardStats: () => api.get('/dashboard/stats'),
+  getRecentActivities: () => api.get('/dashboard/activities'),
+};
 
 export default api;

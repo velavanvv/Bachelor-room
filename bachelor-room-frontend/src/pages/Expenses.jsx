@@ -1,19 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import api from '../services/api';
-import AddExpense from '../components/Expenses/AddExpense';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FiTrash2, FiEdit, FiCalendar, FiDollarSign } from 'react-icons/fi';
+import { apiService } from '../services/api';
+import { 
+  FiArrowLeft,
+  FiDollarSign,
+  FiCalendar,
+  FiFileText,
+  FiUser,
+  FiTrash2,
+  FiFilter,
+  FiRefreshCw,
+  FiTrendingUp,
+  FiChevronRight,
+  FiPlus
+} from 'react-icons/fi';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import toast from 'react-hot-toast';
+
 const Expenses = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [expenses, setExpenses] = useState([]);
   const [filteredExpenses, setFilteredExpenses] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('daily'); // 'daily' or 'monthly'
+  const [viewMode, setViewMode] = useState('daily');
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [newExpense, setNewExpense] = useState({
+    expense_date: new Date(),
+    description: '',
+    amount: '',
+    created_by: user?.id || '',
+  });
 
   useEffect(() => {
     fetchExpenses();
@@ -25,10 +45,11 @@ const Expenses = () => {
 
   const fetchExpenses = async () => {
     try {
-      const response = await api.get('/expenses');
+      const response = await apiService.getExpenses();
       setExpenses(response.data || []);
     } catch (error) {
       console.error('Failed to fetch expenses:', error);
+      toast.error('Failed to load expenses');
     } finally {
       setLoading(false);
     }
@@ -49,11 +70,37 @@ const Expenses = () => {
     }
   };
 
+  const handleAddExpense = async (e) => {
+    e.preventDefault();
+    if (!newExpense.description || !newExpense.amount) {
+      toast.error('Please fill all fields');
+      return;
+    }
+
+    try {
+      await apiService.createExpense({
+        ...newExpense,
+        expense_date: newExpense.expense_date.toISOString().split('T')[0],
+      });
+      
+      toast.success('Expense added successfully');
+      setNewExpense({
+        expense_date: new Date(),
+        description: '',
+        amount: '',
+        created_by: user?.id || '',
+      });
+      fetchExpenses();
+    } catch (error) {
+      toast.error('Failed to add expense');
+    }
+  };
+
   const deleteExpense = async (id) => {
     if (!window.confirm('Are you sure you want to delete this expense?')) return;
     
     try {
-      await api.delete(`/expenses/${id}`);
+      await apiService.deleteExpense(id);
       toast.success('Expense deleted successfully');
       fetchExpenses();
     } catch (error) {
@@ -61,196 +108,159 @@ const Expenses = () => {
     }
   };
 
+  const handleBackToRoom = () => {
+    const roomDoor = document.getElementById('expenses-room-door');
+    if (roomDoor) {
+      roomDoor.style.transform = 'rotateY(-90deg)';
+      roomDoor.style.transition = 'transform 0.5s ease';
+      
+      setTimeout(() => {
+        navigate('/room');
+      }, 300);
+    } else {
+      navigate('/room');
+    }
+  };
+
   const totalAmount = filteredExpenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
+  const monthlyTotal = expenses
+    .filter(e => e.expense_date.startsWith(new Date().toISOString().slice(0, 7)))
+    .reduce((sum, e) => sum + parseFloat(e.amount), 0);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="loader w-12 h-12 border-2 border-white border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Expenses</h2>
-          <p className="text-gray-600">Track and manage all expenses</p>
-        </div>
-        <div className="flex space-x-4">
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setViewMode('daily')}
-              className={`px-4 py-2 rounded-md ${viewMode === 'daily' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
-            >
-              Daily
-            </button>
-            <button
-              onClick={() => setViewMode('monthly')}
-              className={`px-4 py-2 rounded-md ${viewMode === 'monthly' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
-            >
-              Monthly
-            </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+      {/* Room Door Header */}
+      <div className="relative h-64 bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-pink-900/20"></div>
+        <div className="container-responsive h-full flex items-center justify-center">
+          <div className="text-center relative z-10">
+          
+            
+            <h1 className="text-3xl font-bold mb-2">Expense Management</h1>
+            <p className="text-gray-400">Track and manage all room expenses</p>
           </div>
         </div>
+        
+        {/* Back Button */}
+        <button
+          onClick={handleBackToRoom}
+          className="absolute top-6 left-6 flex items-center space-x-2 px-4 py-2 bg-gray-800/70 hover:bg-gray-700/70 rounded-lg backdrop-blur-sm transition-colors"
+        >
+          <FiArrowLeft />
+          <span>Back to Rooms</span>
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <div className="card">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold">
-                {viewMode === 'daily' ? 'Daily Expenses' : 'Monthly Expenses'}
-              </h3>
-              
-              <div className="flex items-center space-x-4">
-                {viewMode === 'daily' ? (
-                  <div className="flex items-center space-x-2">
-                    <FiCalendar className="text-gray-500" />
+      {/* Main Content */}
+      <div className="container-responsive mt-13 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-8">
+          {/* Add Expense Form */}
+          <div className="lg:col-span-2">
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+              <h2 className="text-xl font-bold mb-6">Add New Expense</h2>
+              <form onSubmit={handleAddExpense} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Date</label>
+                  <div className="relative">
                     <DatePicker
-                      selected={selectedDate}
-                      onChange={(date) => setSelectedDate(date)}
-                      className="px-3 py-1 border rounded-md"
+                      selected={newExpense.expense_date}
+                      onChange={(date) => setNewExpense({ ...newExpense, expense_date: date })}
+                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                       dateFormat="yyyy-MM-dd"
                     />
+                    <FiCalendar className="absolute right-3 top-2.5 text-gray-400" />
                   </div>
-                ) : (
-                  <input
-                    type="month"
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="px-3 py-1 border rounded-md"
-                  />
-                )}
-              </div>
-            </div>
-
-            {loading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              </div>
-            ) : filteredExpenses.length === 0 ? (
-              <div className="text-center py-12">
-                <FiDollarSign className="text-4xl text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-500">No expenses found for this period</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4">Date</th>
-                      <th className="text-left py-3 px-4">Description</th>
-                      <th className="text-left py-3 px-4">Added By</th>
-                      <th className="text-left py-3 px-4">Amount</th>
-                      <th className="text-left py-3 px-4">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredExpenses.map((expense) => (
-                      <tr key={expense.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4">
-                          {new Date(expense.expense_date).toLocaleDateString()}
-                        </td>
-                        <td className="py-3 px-4">
-                          <div>
-                            <p className="font-medium">{expense.description}</p>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center">
-                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium mr-2">
-                              {expense.user?.name?.charAt(0) || 'U'}
-                            </div>
-                            {expense.user?.name || 'Unknown'}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className="font-bold text-red-600">
-                            -${parseFloat(expense.amount).toLocaleString()}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex space-x-2">
-                            {(user.id === expense.created_by || user.role === 'admin') && (
-                              <button
-                                onClick={() => deleteExpense(expense.id)}
-                                className="p-2 text-red-600 hover:bg-red-50 rounded"
-                                title="Delete"
-                              >
-                                <FiTrash2 />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                </div>
                 
-                <div className="flex justify-between items-center mt-6 pt-6 border-t">
-                  <div className="text-gray-600">
-                    Showing {filteredExpenses.length} expenses
-                  </div>
-                  <div className="text-lg font-bold text-red-600">
-                    Total: -${totalAmount.toLocaleString()}
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
+                  <input
+                    type="text"
+                    value={newExpense.description}
+                    onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="What was this expense for?"
+                    required
+                  />
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Amount</label>
+                  <input
+                    type="number"
+                    value={newExpense.amount}
+                    onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="Enter amount"
+                    min="1"
+                    required
+                  />
+                </div>
+                
+                <button
+                  type="submit"
+                  className="w-full px-4 py-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded-lg font-medium transition-all duration-300 flex items-center justify-center"
+                >
+                  <FiPlus className="mr-2" />
+                  Add Expense
+                </button>
+              </form>
 
-        <div className="space-y-6">
-          <AddExpense 
-            currentUser={user} 
-            onExpenseAdded={fetchExpenses}
-          />
-          
-          <div className="card">
-            <h3 className="text-lg font-semibold mb-4">Expense Summary</h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-blue-50 rounded">
-                <div>
-                  <p className="text-sm text-gray-600">Today's Expenses</p>
-                  <p className="text-xl font-bold text-red-600">
-                    -${expenses
-                      .filter(e => e.expense_date === new Date().toISOString().split('T')[0])
-                      .reduce((sum, e) => sum + parseFloat(e.amount), 0)
-                      .toLocaleString()}
-                  </p>
-                </div>
-                <FiCalendar className="text-blue-600 text-2xl" />
-              </div>
-              
-              <div className="flex justify-between items-center p-3 bg-green-50 rounded">
-                <div>
-                  <p className="text-sm text-gray-600">This Month's Expenses</p>
-                  <p className="text-xl font-bold text-red-600">
-                    -${expenses
-                      .filter(e => e.expense_date.startsWith(new Date().toISOString().slice(0, 7)))
-                      .reduce((sum, e) => sum + parseFloat(e.amount), 0)
-                      .toLocaleString()}
-                  </p>
-                </div>
-                <FiDollarSign className="text-green-600 text-2xl" />
-              </div>
-              
-              <div className="pt-4 border-t">
-                <h4 className="font-medium mb-2">Quick Stats</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Average Daily:</span>
-                    <span className="font-medium">
-                      ${(totalAmount / 30).toFixed(2)}
-                    </span>
+              {/* Expense Summary */}
+              <div className="mt-8 pt-8 border-t border-gray-700">
+                <h3 className="font-semibold mb-4">Expense Summary</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-red-900/20 rounded-lg">
+                    <div>
+                      <p className="text-sm text-gray-400">Today's Expenses</p>
+                      <p className="text-xl font-bold text-red-400">
+                        ₹{expenses
+                          .filter(e => e.expense_date === new Date().toISOString().split('T')[0])
+                          .reduce((sum, e) => sum + parseFloat(e.amount), 0)
+                          .toLocaleString()}
+                      </p>
+                    </div>
+                    <FiCalendar className="text-red-400 text-2xl" />
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Highest Expense:</span>
-                    <span className="font-medium">
-                      ${filteredExpenses.length > 0 
-                        ? Math.max(...filteredExpenses.map(e => parseFloat(e.amount))).toLocaleString()
-                        : '0'
-                      }
-                    </span>
+                  
+                  <div className="flex items-center justify-between p-3 bg-pink-900/20 rounded-lg">
+                    <div>
+                      <p className="text-sm text-gray-400">This Month's Expenses</p>
+                      <p className="text-xl font-bold text-pink-400">
+                        ₹{monthlyTotal.toLocaleString()}
+                      </p>
+                    </div>
+                    <FiTrendingUp className="text-pink-400 text-2xl" />
+                  </div>
+                  
+                  <div className="pt-4 border-t border-gray-700">
+                    <div className="flex justify-between mb-2">
+                      <span className="text-gray-400">Average Daily:</span>
+                      <span className="font-medium">₹{(totalAmount / 30).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Highest Expense:</span>
+                      <span className="font-medium">
+                        ₹{filteredExpenses.length > 0 
+                          ? Math.max(...filteredExpenses.map(e => parseFloat(e.amount))).toLocaleString()
+                          : '0'
+                        }
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
