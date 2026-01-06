@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
       
       toast.success('Login successful!');
-      navigate(user.role === 'admin' ? '/admin' : '/dashboard');
+      navigate(user.role === 'admin' ? '/room' : '/room');
       
       return { success: true };
     } catch (error) {
