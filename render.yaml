@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: bachelor-room-backend
+    env: docker
+    rootDir: back-end
+    autoDeploy: true
+    healthCheckPath: /up
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        value: https://bachelor-room-backend.onrender.com
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: info
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: bachelor-room-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: bachelor-room-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: bachelor-room-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: bachelor-room-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: bachelor-room-db
+          property: password
+
+databases:
+  - name: bachelor-room-db

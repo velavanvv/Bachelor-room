@@ -26,4 +26,4 @@ RUN chown -R www-data:www-data /var/www/html \
 
 EXPOSE 80
 
-CMD ["sh", "-c", "if [ -z \"$APP_KEY\" ]; then export APP_KEY=\"base64:$(php -r 'echo base64_encode(random_bytes(32));')\"; fi; php artisan migrate --force; apache2-foreground"]
+CMD ["sh", "-c", "if [ -z \"$APP_KEY\" ]; then export APP_KEY=\"base64:$(php -r 'echo base64_encode(random_bytes(32));')\"; fi; php artisan migrate --force --seed; apache2-foreground"]

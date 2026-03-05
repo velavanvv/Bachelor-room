@@ -14,12 +14,14 @@ class MemeberSeeder extends Seeder{
 
 public function run()
 {
-    User::create([
-        'name' => 'vela',
-        'email' => 'member@gmail.com',
-        'phone' => '9999999999',
-        'role' => 'member',
-        'password' => Hash::make('member123'),
-    ]);
+    User::updateOrCreate(
+        ['email' => 'member@gmail.com'],
+        [
+            'name' => 'vela',
+            'phone' => '9999999999',
+            'role' => 'member',
+            'password' => Hash::make('member123'),
+        ]
+    );
 }
 }
