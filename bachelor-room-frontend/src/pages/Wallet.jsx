@@ -19,6 +19,7 @@ import {
   PieChart, Pie, Cell, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from 'recharts';
+import toast from 'react-hot-toast';
 
 const Wallet = () => {
   const navigate = useNavigate();
@@ -93,44 +94,42 @@ const Wallet = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+    <div className="app-page">
       {/* Room Door Header */}
-      <div className="relative h-64 bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
+      <div className="app-hero relative min-h-[15rem] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-violet-900/20"></div>
-        <div className="container-responsive h-full flex items-center justify-center">
+        <div className="container-responsive flex min-h-[15rem] items-center justify-center py-12">
           <div className="text-center relative z-10">
-           
-            
             <h1 className="text-3xl font-bold mb-2">Financial Overview</h1>
-            <p className="text-gray-400">Wallet analytics and financial insights</p>
+            <p className="mx-auto max-w-md text-sm text-gray-300 sm:text-base">See collected money, spending, and balance in a cleaner view that works better on smaller screens.</p>
           </div>
         </div>
         
         {/* Back Button */}
         <button
           onClick={handleBackToRoom}
-          className="absolute top-6 left-6 flex items-center space-x-2 px-4 py-2 bg-gray-800/70 hover:bg-gray-700/70 rounded-lg backdrop-blur-sm transition-colors"
+          className="absolute left-4 top-4 flex items-center space-x-2 rounded-xl bg-black/30 px-4 py-2 backdrop-blur-sm transition-colors hover:bg-black/40 sm:left-6 sm:top-6"
         >
           <FiArrowLeft />
-          <span>Back to Rooms</span>
+          <span className="hidden sm:inline">Back to Rooms</span>
         </button>
         
         {/* Month Navigation */}
-        <div className="absolute top-6 right-6 flex items-center space-x-4">
+        <div className="absolute right-4 top-4 flex items-center space-x-2 sm:right-6 sm:top-6 sm:space-x-4">
           <button
             onClick={() => navigateMonth('prev')}
-            className="p-2 bg-gray-800/70 hover:bg-gray-700/70 rounded-lg backdrop-blur-sm transition-colors"
+            className="rounded-xl bg-black/30 p-2 backdrop-blur-sm transition-colors hover:bg-black/40"
           >
             <FiChevronLeft />
           </button>
-          <div className="px-4 py-2 bg-gray-800/70 rounded-lg backdrop-blur-sm">
-            <span className="font-medium">
+          <div className="rounded-xl bg-black/30 px-3 py-2 backdrop-blur-sm sm:px-4">
+            <span className="text-sm font-medium sm:text-base">
               {format(new Date(selectedMonth + '-01'), 'MMMM yyyy')}
             </span>
           </div>
           <button
             onClick={() => navigateMonth('next')}
-            className="p-2 bg-gray-800/70 hover:bg-gray-700/70 rounded-lg backdrop-blur-sm transition-colors"
+            className="rounded-xl bg-black/30 p-2 backdrop-blur-sm transition-colors hover:bg-black/40"
           >
             <FiChevronRight />
           </button>
@@ -138,10 +137,10 @@ const Wallet = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container-responsive mt-13 relative z-10">
+      <div className="container-responsive relative z-10 -mt-6 pb-10 pt-4 sm:-mt-8 sm:pt-6 mobile-safe-pad">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+          <div className="app-panel">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">Total Collected</p>
@@ -156,7 +155,7 @@ const Wallet = () => {
             </div>
           </div>
           
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+          <div className="app-panel">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">Total Spent</p>
@@ -171,7 +170,7 @@ const Wallet = () => {
             </div>
           </div>
           
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+          <div className="app-panel">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">Current Balance</p>
@@ -198,7 +197,7 @@ const Wallet = () => {
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Expense Distribution */}
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+          <div className="app-panel">
             <h2 className="text-xl font-bold mb-6">Expense Distribution</h2>
             {expensesByCategory.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
@@ -234,7 +233,7 @@ const Wallet = () => {
           </div>
 
           {/* Financial Summary */}
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+          <div className="app-panel">
             <h2 className="text-xl font-bold mb-6">Financial Summary</h2>
             <div className="space-y-6">
               <div>
@@ -287,12 +286,12 @@ const Wallet = () => {
         </div>
 
         {/* Monthly Trends */}
-        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+        <div className="app-panel">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold">Monthly Trends</h2>
             <button
               onClick={fetchWalletData}
-              className="flex items-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+              className="flex items-center space-x-2 rounded-2xl bg-black/20 px-4 py-3 transition-colors hover:bg-black/30"
             >
               <FiRefreshCw />
               <span>Refresh</span>

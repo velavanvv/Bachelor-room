@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MonthlyContribution;
 use App\Models\Wallet;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -11,29 +12,48 @@ class ContributionController extends Controller
 {
     public function pay(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
-            'month' => 'required',
+            'month' => 'required|date_format:Y-m',
             'amount' => 'required|integer|min:1'
         ]);
 
-        $contribution = MonthlyContribution::updateOrCreate(
-            [
-                'user_id' => $request->user_id,
-                'month' => $request->month,
-            ],
-            [
-                'amount' => $request->amount,
-                'status' => 'paid',
-                'paid_date' => Carbon::now()
-            ]
-        );
+        $contribution = DB::transaction(function () use ($validated) {
+            $existingContribution = MonthlyContribution::where('user_id', $validated['user_id'])
+                ->where('month', $validated['month'])
+                ->lockForUpdate()
+                ->first();
 
-        // Wallet update
-        $wallet = Wallet::firstOrCreate(['month' => $request->month]);
-        $wallet->total_collected += $request->amount;
-        $wallet->balance += $request->amount;
-        $wallet->save();
+            $previousAmount = $existingContribution?->amount ?? 0;
+
+            $contribution = MonthlyContribution::updateOrCreate(
+                [
+                    'user_id' => $validated['user_id'],
+                    'month' => $validated['month'],
+                ],
+                [
+                    'amount' => $validated['amount'],
+                    'status' => 'paid',
+                    'paid_date' => Carbon::now(),
+                ]
+            );
+
+            $wallet = Wallet::firstOrCreate(
+                ['month' => $validated['month']],
+                [
+                    'total_collected' => 0,
+                    'total_spent' => 0,
+                    'balance' => 0,
+                ]
+            );
+
+            $amountDelta = $validated['amount'] - $previousAmount;
+            $wallet->total_collected += $amountDelta;
+            $wallet->balance += $amountDelta;
+            $wallet->save();
+
+            return $contribution;
+        });
 
         return response()->json([
             'message' => 'Payment recorded successfully',

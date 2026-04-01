@@ -28,12 +28,16 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const requestUrl = error.config?.url || '';
+    const skipAuthRedirect = error.config?.skipAuthRedirect === true;
+    const isLoginRequest = requestUrl.includes('/login');
+
+    if (error.response?.status === 401 && !skipAuthRedirect && !isLoginRequest) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
       toast.error('Session expired. Please login again.');
-    } else if (error.response?.status === 419) {
+    } else if (error.response?.status === 419 && !skipAuthRedirect) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
@@ -46,7 +50,7 @@ api.interceptors.response.use(
 // API Service Functions
 export const apiService = {
   // Auth
-  login: (email, password) => api.post('/login', { email, password }),
+  login: (email, password) => api.post('/login', { email, password }, { skipAuthRedirect: true }),
   logout: () => api.post('/logout'),
   
   // Users
@@ -74,6 +78,9 @@ export const apiService = {
   // Dashboard
   getDashboardStats: () => api.get('/dashboard/stats'),
   getRecentActivities: () => api.get('/dashboard/activities'),
+
+  // Chatbot
+  sendChatMessage: (payload) => api.post('/chatbot/message', payload),
 };
 
 export default api;

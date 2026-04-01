@@ -11,6 +11,7 @@ import Contributions from './pages/Contributions';
 import Expenses from './pages/Expenses';
 import Wallet from './pages/Wallet';
 import { Toaster } from 'react-hot-toast';
+import ChatbotWidget from './components/Common/ChatbotWidget';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading, isAdmin } = useAuth();
@@ -90,6 +91,11 @@ function App() {
               <AdminUsers />
             </ProtectedRoute>
           } />
+
+          <Route path="/users" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/admin/reports" element={<Navigate to="/admin" replace />} />
+          <Route path="/admin/settings" element={<Navigate to="/wallet" replace />} />
+          <Route path="/admin/audit" element={<Navigate to="/admin" replace />} />
           
           <Route path="/contributions" element={
             <ProtectedRoute>
@@ -111,6 +117,7 @@ function App() {
           
           <Route path="/" element={<Navigate to="/room" />} />
         </Routes>
+        <ChatbotWidget />
       </AuthProvider>
     </Router>
   );

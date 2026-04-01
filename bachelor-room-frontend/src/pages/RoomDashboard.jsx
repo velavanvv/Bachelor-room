@@ -16,10 +16,13 @@ import {
 import { apiService } from '../services/api';
 import toast from 'react-hot-toast';
 
+const adminRoomIds = ['admin-dashboard', 'contributions', 'users'];
+
 const RoomDashboard = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [navbarOpen,setNavbarOpen]=useState(true);
   const [stats, setStats] = useState({
     totalMembers: 0,
     totalContributions: 0,
@@ -143,10 +146,13 @@ const RoomDashboard = () => {
 
   // Filter rooms based on visibility
   const visibleRooms = rooms.filter(room => room.visible);
+  const mobileQuickRooms = visibleRooms.slice(0, 4);
 
+  const isAdminRoom = (roomId) => adminRoomIds.includes(roomId);
+
+  
   const handleRoomClick = (room) => {
-    // Check if user is admin for admin-dashboard
-    if ((room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users') && user?.role !== 'admin') {
+    if (isAdminRoom(room.id) && user?.role !== 'admin') {
       toast.error('Admin access required for this room!');
       return;
     }
@@ -168,14 +174,10 @@ const RoomDashboard = () => {
 
   const handleLogout = async () => {
     try {
-      await apiService.logout();
       logout();
-      toast.success('Logged out successfully');
-      navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
       logout();
-      navigate('/login');
     }
   };
 
@@ -188,25 +190,36 @@ const RoomDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(30,215,96,0.16),_transparent_26%),linear-gradient(180deg,_#07110d_0%,_#0f1915_38%,_#050706_100%)] text-white">
       {/* Top Navigation Bar */}
-      <div className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700">
-        <div className="container-responsive py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+      <div className="sticky top-0 z-20 border-b border-white/8 bg-black/30 backdrop-blur-xl">
+        <div className="container-responsive py-3 sm:py-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center justify-between gap-3 sm:justify-start sm:space-x-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors"
+                className="rounded-xl border border-white/10 bg-white/5 p-2 transition-colors hover:bg-white/10"
               >
                 {sidebarOpen ? <FiChevronLeft size={24} /> : <FiChevronRight size={24} />}
               </button>
-              <div>
-                <h1 className="text-2xl font-bold">Bachelor Room</h1>
-                <p className="text-gray-400 text-sm">Management System</p>
+              <div className="min-w-0 flex-1 sm:flex-none">
+                <h1 className="truncate text-lg font-bold sm:text-2xl">Bachelor Room</h1>
+                <p className="text-xs text-gray-400 sm:text-sm">Management System</p>
+              </div>
+              <div onClick={()=>setNavbarOpen(!navbarOpen)} className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full sm:hidden ${
+                user?.role === 'admin'
+                  ? 'bg-gradient-to-r from-red-600 to-red-700'
+                  : 'bg-gradient-to-r from-blue-600 to-blue-700'
+              }`}>
+                <FiUser size={18} />
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className={` ${navbarOpen? 'hidden':''} flex items-center justify-between gap-3 sm:justify-end sm:space-x-4`}>
+              <div className="min-w-0 sm:hidden">
+                <p className="truncate text-sm font-medium">{user?.name}</p>
+                <p className="text-xs text-gray-400">{user?.role?.toUpperCase()}</p>
+              </div>
               <div className="hidden md:block text-right">
                 <p className="font-medium">{user?.name}</p>
                 <div className="flex items-center justify-end space-x-2">
@@ -220,7 +233,7 @@ const RoomDashboard = () => {
                   <p className="text-sm text-gray-400">User</p>
                 </div>
               </div>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              <div className={`hidden w-10 h-10 rounded-full items-center justify-center sm:flex ${
                 user?.role === 'admin'
                   ? 'bg-gradient-to-r from-red-600 to-red-700'
                   : 'bg-gradient-to-r from-blue-600 to-blue-700'
@@ -229,41 +242,51 @@ const RoomDashboard = () => {
               </div>
               <button
                 onClick={handleLogout}
-                className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                className="flex items-center space-x-2 rounded-xl bg-red-600 px-3 py-2 text-sm transition-colors hover:bg-red-700 sm:px-4"
               >
                 <FiLogOut />
-                <span className="hidden sm:inline">Logout</span>
+                <span>Logout</span>
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex">
+      <div className="relative flex">
+        {sidebarOpen && (
+          <button
+            type="button"
+            aria-label="Close quick access"
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 z-10 bg-black/40 md:hidden"
+          />
+        )}
         {/* Sidebar */}
         <div className={`${
-          sidebarOpen ? 'w-64' : 'w-0'
-        } transition-all duration-300 overflow-hidden`}>
-          <div className="p-6">
+          sidebarOpen ? 'translate-x-0 opacity-100  ' : '-translate-x-full opacity-0 md:hidden'
+        } fixed left-0 top-[73px] z-20 h-[calc(100vh-73px)] w-72 border-r border-white/10 bg-[#0b120f]/95 backdrop-blur-xl transition-all duration-300 md:static md:h-auto md:w-auto md:border-r-0 md:bg-transparent md:backdrop-blur-0 md:opacity-100 md:translate-x-0 ${
+          sidebarOpen ? 'md:w-64' : 'md:w-0'
+        } md:overflow-hidden`}>
+          <div className="p-6 pb-24 md:pb-6">
             <h2 className="text-lg font-semibold mb-4">Quick Access</h2>
             <div className="space-y-2">
               {visibleRooms.map((room) => (
                 <button
                   key={room.id}
                   onClick={() => handleRoomClick(room)}
-                  disabled={(room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users') && user?.role !== 'admin'}
+                  disabled={isAdminRoom(room.id) && user?.role !== 'admin'}
                   className={`w-full flex items-center p-3 rounded-lg transition-colors ${
-                    (room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users')
+                    isAdminRoom(room.id)
                       ? user?.role === 'admin'
                         ? 'bg-gradient-to-r from-indigo-800/50 to-indigo-900/50 hover:from-indigo-700 hover:to-indigo-800 border-l-4 border-indigo-500'
                         : 'bg-gray-800 opacity-50 cursor-not-allowed'
                       : 'bg-gray-800 hover:bg-gray-700'
                   }`}
-                >
-                  <room.icon className="mr-3" />
-                  <span className="flex-1 text-left">{room.title}</span>
-                  {(room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users') && user?.role !== 'admin' && (
-                    <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                  >
+                    <room.icon className="mr-3" />
+                    <span className="flex-1 text-left">{room.title}</span>
+                    {isAdminRoom(room.id) && user?.role !== 'admin' && (
+                      <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                     </svg>
                   )}
@@ -309,13 +332,13 @@ const RoomDashboard = () => {
                     onClick={() => navigate('/admin')}
                     className="w-full text-left px-3 py-2 text-sm bg-indigo-800/50 hover:bg-indigo-700 rounded"
                   >
-                    View Reports
+                    Admin Overview
                   </button>
                   <button
-                    onClick={() => navigate('/admin/settings')}
+                    onClick={() => navigate('/wallet')}
                     className="w-full text-left px-3 py-2 text-sm bg-indigo-800/50 hover:bg-indigo-700 rounded"
                   >
-                    System Settings
+                    Open Wallet
                   </button>
                 </div>
               </div>
@@ -324,8 +347,8 @@ const RoomDashboard = () => {
         </div>
 
         {/* Main Content - Room Layout */}
-        <div className="flex-1 p-4 md:p-6">
-          <div className="mb-8">
+        <div className="flex-1 overflow-x-hidden p-4 pb-28 md:p-6 md:pb-6">
+          <div className="mb-6 md:mb-8">
             <h1 className="text-3xl font-bold mb-2">Welcome to Your Room!</h1>
             <p className="text-gray-400">
               {user?.role === 'admin' 
@@ -335,17 +358,98 @@ const RoomDashboard = () => {
             </p>
           </div>
 
+          <div className="mb-8 md:hidden">
+            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,_rgba(30,215,96,0.26),_rgba(10,10,10,0.1)_45%,_rgba(0,0,0,0.45)_100%)] p-5 shadow-[0_22px_50px_rgba(0,0,0,0.35)]">
+              <p className="text-xs uppercase tracking-[0.28em] text-emerald-200/70">Mobile Mix</p>
+              <div className="mt-3 flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold leading-tight">Your room, optimized for phone.</h2>
+                  <p className="mt-2 text-sm text-emerald-50/70">
+                    Tap into contributions, expenses, and wallet stats with a cleaner mobile flow.
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-black/25 p-3 text-right">
+                  <p className="text-xs text-emerald-200/70">Balance</p>
+                  <p className="text-lg font-semibold">₹{stats.currentBalance}</p>
+                </div>
+              </div>
+
+              <div className="mt-5 grid grid-cols-3 gap-3">
+                <div className="rounded-2xl bg-black/25 p-3">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-emerald-200/60">Members</p>
+                  <p className="mt-1 text-lg font-semibold">{stats.totalMembers}</p>
+                </div>
+                <div className="rounded-2xl bg-black/25 p-3">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-emerald-200/60">Spent</p>
+                  <p className="mt-1 text-lg font-semibold">₹{stats.totalExpenses}</p>
+                </div>
+                <div className="rounded-2xl bg-black/25 p-3">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-emerald-200/60">Role</p>
+                  <p className="mt-1 text-lg font-semibold">{user?.role === 'admin' ? 'Admin' : 'Member'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Quick Picks</h3>
+                <span className="text-xs uppercase tracking-[0.18em] text-emerald-200/60">Mobile view</span>
+              </div>
+              <div className="space-y-3">
+                {visibleRooms.map((room) => (
+                  <button
+                    key={`mobile-${room.id}`}
+                    onClick={() => handleRoomClick(room)}
+                    disabled={isAdminRoom(room.id) && user?.role !== 'admin'}
+                    className={`w-full rounded-[1.5rem] border p-4 text-left transition active:scale-[0.99] ${
+                      isAdminRoom(room.id)
+                        ? user?.role === 'admin'
+                          ? 'border-indigo-400/30 bg-indigo-500/10'
+                          : 'border-white/6 bg-white/5 opacity-60'
+                        : 'border-white/10 bg-white/5'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${room.color}`}>
+                        <room.icon size={24} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="truncate text-base font-semibold">{room.title}</p>
+                          {isAdminRoom(room.id) && (
+                            <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-red-200">
+                              Admin
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-1 truncate text-sm text-emerald-50/60">{room.description}</p>
+                        <div className="mt-3 flex gap-2">
+                          {room.stats.map((stat) => (
+                            <span key={`${room.id}-${stat.label}`} className="rounded-full bg-black/20 px-3 py-1 text-xs text-emerald-50/80">
+                              {stat.label}: {stat.value}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <FiChevronRight className="shrink-0 text-emerald-100/60" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Room Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="hidden gap-6 md:grid md:grid-cols-2 lg:grid-cols-3">
             {visibleRooms.map((room) => (
               <div
                 key={room.id}
                 className={`relative bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-1 ${
-                 ((room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users')) ? 'border-2 border-indigo-500/50 glow-effect' : ''
+                 isAdminRoom(room.id) ? 'border-2 border-indigo-500/50 glow-effect' : ''
                 }`}
               >
                 {/* Admin Badge for Admin Dashboard */}
-                {((room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users')) && (
+                {isAdminRoom(room.id) && (
                   <div className="absolute -top-3 -right-3 bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-1 rounded-full font-bold text-xs z-20">
                     ADMIN ONLY
                   </div>
@@ -363,12 +467,12 @@ const RoomDashboard = () => {
                       <div
                         id={`door-${room.id}`}
                         className={`w-48 h-56 ${room.doorColor} rounded-lg border-4 ${room.doorColor.replace('bg-', 'border-')} flex flex-col items-center justify-center cursor-pointer transform transition-transform duration-300 hover:scale-105 relative ${
-                          (room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users') ? 'room-door' : ''
+                          isAdminRoom(room.id) ? 'room-door' : ''
                         }`}
                         onClick={() => handleRoomClick(room)}
                       >
                         {/* Admin Icon */}
-                        {(room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users') && (
+                        {isAdminRoom(room.id) && (
                           <div className="absolute -top-3 -right-3 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
                             <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
@@ -384,7 +488,7 @@ const RoomDashboard = () => {
                         <span className="text-white font-semibold text-lg">{room.title}</span>
                         
                         {/* Lock icon for admin room when not admin */}
-                        {(room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users') && user?.role !== 'admin' && (
+                        {isAdminRoom(room.id) && user?.role !== 'admin' && (
                           <div className="absolute inset-0 bg-black/70 rounded-lg flex items-center justify-center">
                             <svg className="w-12 h-12 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
@@ -396,11 +500,11 @@ const RoomDashboard = () => {
                     
                     {/* Door Sign */}
                     <div className={`absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full font-bold ${
-                      (room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users') 
+                      isAdminRoom(room.id) 
                         ? 'bg-gradient-to-r from-red-500 to-red-600 text-white' 
                         : ''
                     }`}>
-                      {(room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users') ? 'Admin Access' : ''}
+                      {isAdminRoom(room.id) ? 'Admin Access' : ''}
                     </div>
                   </div>
 
@@ -422,9 +526,9 @@ const RoomDashboard = () => {
                     {/* Enter Button */}
                     <button
                       onClick={() => handleRoomClick(room)}
-                      disabled={(room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users') && user?.role !== 'admin'}
+                      disabled={isAdminRoom(room.id) && user?.role !== 'admin'}
                       className={`mt-6 w-full py-3 rounded-lg font-medium transition-all duration-300 flex items-center justify-center ${
-                        (room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users')
+                        isAdminRoom(room.id)
                           ? user?.role === 'admin'
                             ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800'
                             : 'bg-gray-700 cursor-not-allowed opacity-50'
@@ -432,7 +536,7 @@ const RoomDashboard = () => {
                       }`}
                     >
                       <span>
-                        {(room.id === 'admin-dashboard'||room.id === 'contributions'|| room.id === 'users') && user?.role !== 'admin' 
+                        {isAdminRoom(room.id) && user?.role !== 'admin' 
                           ? 'Admin Access Required' 
                           : `Enter ${room.title}`}
                       </span>
@@ -445,7 +549,7 @@ const RoomDashboard = () => {
           </div>
 
           {/* Bottom Info Section */}
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="mt-12 hidden grid-cols-1 gap-6 md:grid md:grid-cols-3">
             <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/30 rounded-xl p-6 border border-blue-700/30">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mr-4">
@@ -521,6 +625,23 @@ const RoomDashboard = () => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-[#08100d]/95 px-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] pt-3 backdrop-blur-xl md:hidden">
+        <div className="mx-auto flex max-w-md items-center justify-between gap-2">
+          {mobileQuickRooms.map((room) => (
+            <button
+              key={`dock-${room.id}`}
+              onClick={() => handleRoomClick(room)}
+              className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 text-center text-emerald-50/80 transition hover:bg-white/5"
+            >
+              <div className={`flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br ${room.color}`}>
+                <room.icon size={18} />
+              </div>
+              <span className="truncate text-[11px] font-medium">{room.title}</span>
+            </button>
+          ))}
         </div>
       </div>
     </div>
