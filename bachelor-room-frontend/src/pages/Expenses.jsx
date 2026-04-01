@@ -136,35 +136,33 @@ const Expenses = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+    <div className="app-page">
       {/* Room Door Header */}
-      <div className="relative h-64 bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
+      <div className="app-hero relative min-h-[15rem] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-pink-900/20"></div>
-        <div className="container-responsive h-full flex items-center justify-center">
+        <div className="container-responsive flex min-h-[15rem] items-center justify-center py-12">
           <div className="text-center relative z-10">
-          
-            
             <h1 className="text-3xl font-bold mb-2">Expense Management</h1>
-            <p className="text-gray-400">Track and manage all room expenses</p>
+            <p className="mx-auto max-w-md text-sm text-gray-300 sm:text-base">Track daily spending, add new expenses quickly, and review monthly totals without fighting the layout on mobile.</p>
           </div>
         </div>
         
         {/* Back Button */}
         <button
           onClick={handleBackToRoom}
-          className="absolute top-6 left-6 flex items-center space-x-2 px-4 py-2 bg-gray-800/70 hover:bg-gray-700/70 rounded-lg backdrop-blur-sm transition-colors"
+          className="absolute left-4 top-4 flex items-center space-x-2 rounded-xl bg-black/30 px-4 py-2 backdrop-blur-sm transition-colors hover:bg-black/40 sm:left-6 sm:top-6"
         >
           <FiArrowLeft />
-          <span>Back to Rooms</span>
+          <span className="hidden sm:inline">Back to Rooms</span>
         </button>
       </div>
 
       {/* Main Content */}
-      <div className="container-responsive mt-13 relative z-10">
+      <div className="container-responsive relative z-10 -mt-6 pb-10 pt-4 sm:-mt-8 sm:pt-6 mobile-safe-pad">
         <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-8">
           {/* Add Expense Form */}
           <div className="lg:col-span-2">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+            <div className="app-panel">
               <h2 className="text-xl font-bold mb-6">Add New Expense</h2>
               <form onSubmit={handleAddExpense} className="space-y-4">
                 <div>
@@ -173,7 +171,7 @@ const Expenses = () => {
                     <DatePicker
                       selected={newExpense.expense_date}
                       onChange={(date) => setNewExpense({ ...newExpense, expense_date: date })}
-                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                       dateFormat="yyyy-MM-dd"
                     />
                     <FiCalendar className="absolute right-3 top-2.5 text-gray-400" />
@@ -186,7 +184,7 @@ const Expenses = () => {
                     type="text"
                     value={newExpense.description}
                     onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     placeholder="What was this expense for?"
                     required
                   />
@@ -198,7 +196,7 @@ const Expenses = () => {
                     type="number"
                     value={newExpense.amount}
                     onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     placeholder="Enter amount"
                     min="1"
                     required
@@ -207,7 +205,7 @@ const Expenses = () => {
                 
                 <button
                   type="submit"
-                  className="w-full px-4 py-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded-lg font-medium transition-all duration-300 flex items-center justify-center"
+                  className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-red-600 to-pink-600 px-4 py-3 font-medium transition-all duration-300 hover:from-red-700 hover:to-pink-700"
                 >
                   <FiPlus className="mr-2" />
                   Add Expense
@@ -218,7 +216,7 @@ const Expenses = () => {
               <div className="mt-8 pt-8 border-t border-gray-700">
                 <h3 className="font-semibold mb-4">Expense Summary</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-red-900/20 rounded-lg">
+                  <div className="flex items-center justify-between rounded-2xl bg-red-900/20 p-3">
                     <div>
                       <p className="text-sm text-gray-400">Today's Expenses</p>
                       <p className="text-xl font-bold text-red-400">
@@ -231,7 +229,7 @@ const Expenses = () => {
                     <FiCalendar className="text-red-400 text-2xl" />
                   </div>
                   
-                  <div className="flex items-center justify-between p-3 bg-pink-900/20 rounded-lg">
+                  <div className="flex items-center justify-between rounded-2xl bg-pink-900/20 p-3">
                     <div>
                       <p className="text-sm text-gray-400">This Month's Expenses</p>
                       <p className="text-xl font-bold text-pink-400">

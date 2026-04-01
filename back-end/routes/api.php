@@ -33,6 +33,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Dashboard routes
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
     Route::get('/dashboard/activities', [DashboardController::class, 'activities']);
+    Route::post('/chatbot/message', [App\Http\Controllers\ChatbotController::class, 'message']);
     
     // Admin routes
     Route::prefix('admin')->middleware('admin')->group(function () {

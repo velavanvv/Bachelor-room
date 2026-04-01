@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
-const AuthContext = createContext({});
+export const AuthContext = createContext({});
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await api.post('/login', { email, password });
+      const response = await api.post('/login', { email, password }, { skipAuthRedirect: true });
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);
@@ -34,12 +34,15 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
       
       toast.success('Login successful!');
-      navigate(user.role === 'admin' ? '/room' : '/room');
+      navigate('/room');
       
       return { success: true };
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed');
-      return { success: false, error };
+      return {
+        success: false,
+        error,
+        message: error.response?.data?.message || 'Login failed',
+      };
     }
   };
 

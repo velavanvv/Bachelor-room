@@ -19,6 +19,7 @@
   body {
     @apply bg-gray-50 text-gray-900 font-sans antialiased;
     -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
   }
 
   /* Better scrollbar */
@@ -165,6 +166,26 @@
   /* Grid */
   .grid-responsive {
     @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+
+  .app-page {
+    @apply min-h-screen bg-[linear-gradient(180deg,_#08110d_0%,_#101a16_38%,_#060807_100%)] text-white;
+  }
+
+  .app-hero {
+    @apply relative overflow-hidden border-b border-white/10 bg-[radial-gradient(circle_at_top,_rgba(52,211,153,0.16),_transparent_26%),linear-gradient(180deg,_rgba(255,255,255,0.05),_rgba(255,255,255,0.02))];
+  }
+
+  .app-panel {
+    @apply rounded-3xl border border-white/10 bg-white/5 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-sm sm:p-6;
+  }
+
+  .app-subtle {
+    @apply rounded-2xl border border-white/8 bg-black/20;
+  }
+
+  .mobile-safe-pad {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
   }
 
   /* Typography */

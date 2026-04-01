@@ -1,13 +1,45 @@
 #!/usr/bin/env node
 
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.resolve(__dirname, "../.env");
+
+if (fs.existsSync(envPath)) {
+  const envLines = fs.readFileSync(envPath, "utf8").split(/\r?\n/);
+  for (const line of envLines) {
+    const trimmed = line.trim();
+
+    if (!trimmed || trimmed.startsWith("#")) {
+      continue;
+    }
+
+    const separatorIndex = trimmed.indexOf("=");
+    if (separatorIndex === -1) {
+      continue;
+    }
+
+    const key = trimmed.slice(0, separatorIndex).trim();
+    const value = trimmed.slice(separatorIndex + 1).trim();
+
+    if (!(key in process.env)) {
+      process.env[key] = value;
+    }
+  }
+}
 
 const apiBaseUrl = (
   process.env.BACHELOR_ROOM_API_URL ||
   "https://bachelor-room.onrender.com/api"
 ).replace(/\/+$/, "");
+const sambaNovaApiKey = process.env.SAMBANOVA_API_KEY || "";
+const sambaNovaModel = process.env.SAMBANOVA_MODEL || "DeepSeek-R1-0528";
 
 const session = {
   token: process.env.BACHELOR_ROOM_TOKEN || null,
@@ -71,6 +103,73 @@ function requireLogin() {
   }
 }
 
+function sanitizeReply(reply) {
+  const withoutThinking = reply.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  return withoutThinking.replace(/^\s*#+\s*/gm, "").trim();
+}
+
+async function sambaNovaRequest(prompt, history = []) {
+  if (!sambaNovaApiKey) {
+    throw new Error(
+      "SambaNova API key not configured. Set SAMBANOVA_API_KEY in mcp-server/.env or process env."
+    );
+  }
+
+  const sanitizedHistory = history
+    .filter((message) => message && message.role && message.content)
+    .slice(-8)
+    .map((message) => ({
+      role: message.role === "assistant" ? "model" : "user",
+      parts: [{ text: message.content }],
+    }));
+
+  const response = await fetch(
+    "https://api.sambanova.ai/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${sambaNovaApiKey}`,
+      },
+      body: JSON.stringify({
+        model: sambaNovaModel,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are the Bachelor Room assistant. Help with expenses, contributions, wallet balance, room rules, admin/member flows, and general product guidance. Keep replies practical and concise. Never reveal chain-of-thought, hidden reasoning, or <think> blocks. Return only the final user-facing answer.",
+          },
+          ...sanitizedHistory.map((message) => ({
+            role: message.role === "model" ? "assistant" : "user",
+            content: message.parts?.[0]?.text || "",
+          })),
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 512,
+      }),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.error?.message || "SambaNova request failed."
+    );
+  }
+
+  const text = sanitizeReply(
+    data?.choices?.[0]?.message?.content?.trim() ||
+    "No response received from SambaNova."
+  );
+
+  return text;
+}
+
 const server = new McpServer({
   name: "bachelor-room-mcp",
   version: "1.0.0",
@@ -96,6 +195,7 @@ server.tool(
         "get_wallet",
         "create_expense",
         "pay_contribution",
+        "chat_with_room_assistant",
       ],
     })
 );
@@ -223,6 +323,28 @@ server.tool(
         body: input,
       })
     );
+  }
+);
+
+server.tool(
+  "chat_with_room_assistant",
+  {
+    prompt: z.string().min(1),
+    history: z
+      .array(
+        z.object({
+          role: z.enum(["user", "assistant"]),
+          content: z.string().min(1),
+        })
+      )
+      .optional(),
+  },
+  async ({ prompt, history = [] }) => {
+    const reply = await sambaNovaRequest(prompt, history);
+    return asText({
+      model: sambaNovaModel,
+      reply,
+    });
   }
 );
 

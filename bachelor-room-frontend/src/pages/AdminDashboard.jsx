@@ -16,6 +16,7 @@ import {
   FiChevronRight,
   FiShield
 } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -54,6 +55,7 @@ const AdminDashboard = () => {
       });
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
+      toast.error('Failed to load admin dashboard');
     } finally {
       setLoading(false);
     }
@@ -126,28 +128,28 @@ const AdminDashboard = () => {
       path: '/admin/users'
     },
     {
-      title: 'View Reports',
-      description: 'Financial reports and analytics',
+      title: 'Contribution Status',
+      description: 'Track pending and completed payments',
       icon: FiActivity,
       color: 'from-green-900/30 to-green-800/30',
       borderColor: 'border-green-700/30',
-      path: '/admin/reports'
+      path: '/contributions'
     },
     {
-      title: 'System Settings',
-      description: 'Configure system preferences',
+      title: 'Expenses Overview',
+      description: 'Review and manage room spending',
       icon: FiSettings,
       color: 'from-purple-900/30 to-purple-800/30',
       borderColor: 'border-purple-700/30',
-      path: '/admin/settings'
+      path: '/expenses'
     },
     {
-      title: 'Audit Logs',
-      description: 'View system activity logs',
+      title: 'Wallet Summary',
+      description: 'Open the wallet and financial overview',
       icon: FiShield,
       color: 'from-red-900/30 to-red-800/30',
       borderColor: 'border-red-700/30',
-      path: '/admin/audit'
+      path: '/wallet'
     },
   ];
 

@@ -87,6 +87,39 @@ const Contributions = () => {
     }
   };
 
+  const exportContributions = () => {
+    if (contributions.length === 0) {
+      toast.error('No contributions available to export');
+      return;
+    }
+
+    const rows = [
+      ['Member', 'Email', 'Amount', 'Status', 'Paid Date'],
+      ...contributions.map((contribution) => [
+        contribution.user?.name || 'Unknown',
+        contribution.user?.email || '',
+        contribution.amount || 0,
+        contribution.status || 'pending',
+        contribution.paid_date ? new Date(contribution.paid_date).toLocaleDateString() : '',
+      ]),
+    ];
+
+    const csv = rows
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `contributions-${selectedMonth}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    toast.success('Contribution export started');
+  };
+
   const totalAmount = contributions.reduce((sum, c) => sum + (c.amount || 0), 0);
   const paidCount = contributions.filter(c => c.status === 'paid').length;
   const pendingCount = users.length - paidCount;
@@ -100,41 +133,42 @@ const Contributions = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+    <div className="app-page">
       {/* Room Door Header */}
-      <div className="relative h-64 bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
+      <div className="app-hero relative min-h-[15rem] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-green-900/20 to-emerald-900/20"></div>
-        <div className="container-responsive h-full flex items-center justify-center">
+        <div className="container-responsive flex min-h-[15rem] items-center justify-center py-12">
           <div className="text-center relative z-10">
-          
-            
             <h1 className="text-3xl font-bold mb-2">Contributions Management</h1>
-            <p className="text-gray-400">Manage monthly payments and contributions</p>
+            <p className="mx-auto max-w-md text-sm text-gray-300 sm:text-base">Record member payments faster, check what is pending, and review the month from a layout that behaves better on phones.</p>
           </div>
         </div>
         
         {/* Back Button */}
         <button
           onClick={handleBackToRoom}
-          className="absolute top-6 left-6 flex items-center space-x-2 px-4 py-2 bg-gray-800/70 hover:bg-gray-700/70 rounded-lg backdrop-blur-sm transition-colors"
+          className="absolute left-4 top-4 flex items-center space-x-2 rounded-xl bg-black/30 px-4 py-2 backdrop-blur-sm transition-colors hover:bg-black/40 sm:left-6 sm:top-6"
         >
           <FiArrowLeft />
-          <span>Back to Rooms</span>
+          <span className="hidden sm:inline">Back to Rooms</span>
         </button>
         
         {/* Export Button */}
-        <button className="absolute top-6 right-6 flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg backdrop-blur-sm transition-colors">
+        <button
+          onClick={exportContributions}
+          className="absolute right-4 top-4 flex items-center space-x-2 rounded-xl bg-green-600 px-4 py-2 backdrop-blur-sm transition-colors hover:bg-green-700 sm:right-6 sm:top-6"
+        >
           <FiDownload />
-          <span>Export</span>
+          <span className="hidden sm:inline">Export</span>
         </button>
       </div>
 
       {/* Main Content */}
-      <div className="container-responsive mt-3 relative z-10">
+      <div className="container-responsive relative z-10 -mt-6 pb-10 pt-4 sm:-mt-8 sm:pt-6 mobile-safe-pad">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Payment Form */}
           <div className="lg:col-span-1">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+            <div className="app-panel">
               <h2 className="text-xl font-bold mb-6">Record Payment</h2>
               <form onSubmit={handlePayment} className="space-y-4">
                 <div>
@@ -142,7 +176,7 @@ const Contributions = () => {
                   <select
                     value={paymentData.user_id}
                     onChange={(e) => setPaymentData({ ...paymentData, user_id: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     required
                   >
                     <option value="">Choose a member</option>
@@ -160,7 +194,7 @@ const Contributions = () => {
                     type="month"
                     value={paymentData.month}
                     onChange={(e) => setPaymentData({ ...paymentData, month: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -171,7 +205,7 @@ const Contributions = () => {
                     type="number"
                     value={paymentData.amount}
                     onChange={(e) => setPaymentData({ ...paymentData, amount: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="Enter amount"
                     min="1"
                     required
@@ -180,7 +214,7 @@ const Contributions = () => {
                 
                 <button
                   type="submit"
-                  className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg font-medium transition-all duration-300"
+                  className="w-full rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-3 font-medium transition-all duration-300 hover:from-green-700 hover:to-emerald-700"
                 >
                   Record Payment
                 </button>
@@ -215,7 +249,7 @@ const Contributions = () => {
 
           {/* Contributions List */}
           <div className="lg:col-span-2">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+            <div className="app-panel">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
                 <div>
                   <h2 className="text-xl font-bold">Payment History</h2>
@@ -228,11 +262,11 @@ const Contributions = () => {
                     type="month"
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
                   <button
                     onClick={fetchData}
-                    className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                    className="rounded-2xl bg-black/20 p-3 transition-colors hover:bg-black/30"
                   >
                     <FiRefreshCw />
                   </button>

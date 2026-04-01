@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Expense;
 use App\Models\Wallet;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 class ExpenseController extends Controller
 {
@@ -17,21 +17,32 @@ class ExpenseController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'expense_date' => 'required|date',
             'description' => 'required|string',
             'amount' => 'required|integer|min:1',
             'created_by' => 'required|exists:users,id'
         ]);
 
-        $expense = Expense::create($request->all());
+        $expense = DB::transaction(function () use ($validated) {
+            $expense = Expense::create($validated);
+            $month = date('Y-m', strtotime($validated['expense_date']));
 
-        $month = date('Y-m', strtotime($request->expense_date));
+            $wallet = Wallet::firstOrCreate(
+                ['month' => $month],
+                [
+                    'total_collected' => 0,
+                    'total_spent' => 0,
+                    'balance' => 0,
+                ]
+            );
 
-        $wallet = Wallet::firstOrCreate(['month' => $month]);
-        $wallet->total_spent += $request->amount;
-        $wallet->balance -= $request->amount;
-        $wallet->save();
+            $wallet->total_spent += $validated['amount'];
+            $wallet->balance -= $validated['amount'];
+            $wallet->save();
+
+            return $expense;
+        });
 
         return response()->json([
             'message' => 'Expense added successfully',
@@ -58,18 +69,20 @@ class ExpenseController extends Controller
 
     public function destroy($id)
     {
-        $expense = Expense::findOrFail($id);
+        DB::transaction(function () use ($id) {
+            $expense = Expense::findOrFail($id);
 
-        // Refund wallet
-        $month = date('Y-m', strtotime($expense->expense_date));
-        $wallet = Wallet::where('month', $month)->first();
-        if ($wallet) {
-            $wallet->total_spent -= $expense->amount;
-            $wallet->balance += $expense->amount;
-            $wallet->save();
-        }
+            $month = date('Y-m', strtotime($expense->expense_date));
+            $wallet = Wallet::where('month', $month)->lockForUpdate()->first();
 
-        $expense->delete();
+            if ($wallet) {
+                $wallet->total_spent -= $expense->amount;
+                $wallet->balance += $expense->amount;
+                $wallet->save();
+            }
+
+            $expense->delete();
+        });
 
         return response()->json(['message' => 'Expense deleted successfully']);
     }

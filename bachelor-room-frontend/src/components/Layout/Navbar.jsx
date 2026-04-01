@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { FiUser, FiBell, FiSearch, FiChevronDown } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 const Navbar = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -93,7 +94,10 @@ const Navbar = () => {
                       ))}
                     </div>
                     <div className="p-3 border-t border-gray-200">
-                      <button className="text-sm text-primary-600 hover:text-primary-700 font-medium">
+                      <button
+                        onClick={() => toast('You are already viewing the latest notifications.')}
+                        className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                      >
                         View all notifications
                       </button>
                     </div>
@@ -140,13 +144,22 @@ const Navbar = () => {
                       </span>
                     </div>
                     <div className="py-2">
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <button
+                        onClick={() => toast('Profile settings are not available yet.')}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
                         Profile Settings
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <button
+                        onClick={() => toast('Please use the forgot password option on login or contact admin.')}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
                         Change Password
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                      <button
+                        onClick={logout}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      >
                         Logout
                       </button>
                     </div>
