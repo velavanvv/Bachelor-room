@@ -67,7 +67,7 @@ const Wallet = () => {
       const chartData = Object.entries(categoryMap).map(([name, value]) => ({
         name,
         value,
-      }));
+      })).sort((a, b) => b.value - a.value);
       
       setExpensesByCategory(chartData);
     } catch (error) {
@@ -99,6 +99,11 @@ const Wallet = () => {
   };
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d'];
+  const openingBalance = (walletData?.balance || 0) - (walletData?.total_collected || 0) + (walletData?.total_spent || 0);
+  const netChange = (walletData?.total_collected || 0) - (walletData?.total_spent || 0);
+  const expenseShare = walletData?.total_collected
+    ? Math.min(100, (((walletData?.total_spent || 0) / walletData.total_collected) * 100))
+    : 0;
 
   if (loading) {
     return (
@@ -213,33 +218,71 @@ const Wallet = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Expense Distribution */}
           <div className="app-panel">
-            <h2 className="text-xl font-bold mb-6">Expense Distribution</h2>
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold">Expense Distribution</h2>
+                <p className="mt-1 text-sm text-gray-400">See where this month&apos;s money was spent by category.</p>
+              </div>
+              <div className="rounded-2xl bg-black/20 px-4 py-3 text-right">
+                <p className="text-xs uppercase tracking-[0.18em] text-gray-500">Total Spent</p>
+                <p className="mt-1 text-lg font-semibold text-red-400">₹{(walletData?.total_spent || 0).toLocaleString()}</p>
+              </div>
+            </div>
             {expensesByCategory.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={expensesByCategory}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={renderPieLabel}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {expensesByCategory.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value) => [`₹${value}`, 'Amount']}
-                    contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', color: '#f9fafb' }}
-                    itemStyle={{ color: '#f9fafb' }}
-                    labelStyle={{ color: '#f9fafb' }}
-                  />
-                  <Legend wrapperStyle={{ color: '#e5e7eb', paddingTop: '12px' }} />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="space-y-5">
+                <ResponsiveContainer width="100%" height={280}>
+                  <PieChart>
+                    <Pie
+                      data={expensesByCategory}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={88}
+                      paddingAngle={3}
+                      stroke="rgba(17,24,39,0.9)"
+                      strokeWidth={2}
+                      labelLine={false}
+                      label={renderPieLabel}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {expensesByCategory.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value) => [`₹${value}`, 'Amount']}
+                      contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', color: '#f9fafb' }}
+                      itemStyle={{ color: '#f9fafb' }}
+                      labelStyle={{ color: '#f9fafb' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+
+                <div className="space-y-3">
+                  {expensesByCategory.map((entry, index) => {
+                    const share = walletData?.total_spent
+                      ? ((entry.value / walletData.total_spent) * 100).toFixed(1)
+                      : '0.0';
+
+                    return (
+                      <div key={entry.name} className="flex items-center justify-between rounded-2xl bg-black/20 px-4 py-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <span
+                            className="h-3 w-3 shrink-0 rounded-full"
+                            style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                          />
+                          <div className="min-w-0">
+                            <p className="truncate font-medium text-white">{entry.name}</p>
+                            <p className="text-xs text-gray-400">{share}% of total expenses</p>
+                          </div>
+                        </div>
+                        <p className="shrink-0 font-semibold text-gray-100">₹{entry.value.toLocaleString()}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             ) : (
               <div className="text-center py-12">
                 <FiPieChart className="w-16 h-16 text-gray-600 mx-auto mb-4" />
@@ -302,10 +345,10 @@ const Wallet = () => {
           </div>
         </div>
 
-        {/* Monthly Trends */}
+        {/* Month Summary */}
         <div className="app-panel overflow-hidden">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold">Monthly Trends</h2>
+            <h2 className="text-xl font-bold">Month Summary</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -315,11 +358,14 @@ const Wallet = () => {
                   <FiCreditCard className="text-blue-400" />
                 </div>
                 <div>
-                  <p className="font-semibold">Average Contribution</p>
-                  <p className="text-sm text-gray-400">Per member</p>
+                  <p className="font-semibold">Opening Balance</p>
+                  <p className="text-sm text-gray-400">Carry-forward from last month</p>
                 </div>
               </div>
-              <p className="text-2xl font-bold text-blue-400">₹1,250</p>
+              <p className="text-2xl font-bold text-blue-400">₹{openingBalance.toLocaleString()}</p>
+              <p className="mt-2 text-sm text-gray-400">
+                This is the balance available at the start of {format(new Date(selectedMonth + '-01'), 'MMMM yyyy')}.
+              </p>
             </div>
             
             <div className="app-subtle p-4">
@@ -328,11 +374,18 @@ const Wallet = () => {
                   <FiTrendingUp className="text-green-400" />
                 </div>
                 <div>
-                  <p className="font-semibold">Growth Rate</p>
-                  <p className="text-sm text-gray-400">Monthly increase</p>
+                  <p className="font-semibold">Net Change</p>
+                  <p className="text-sm text-gray-400">Collected minus spent</p>
                 </div>
               </div>
-              <p className="text-2xl font-bold text-green-400">+15%</p>
+              <p className={`text-2xl font-bold ${netChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {netChange >= 0 ? '+' : ''}₹{netChange.toLocaleString()}
+              </p>
+              <p className="mt-2 text-sm text-gray-400">
+                {netChange >= 0
+                  ? 'This month added more money than it spent.'
+                  : 'This month spent more money than it collected.'}
+              </p>
             </div>
             
             <div className="app-subtle p-4">
@@ -341,11 +394,14 @@ const Wallet = () => {
                   <FiCalendar className="text-yellow-400" />
                 </div>
                 <div>
-                  <p className="font-semibold">Savings Target</p>
-                  <p className="text-sm text-gray-400">This month</p>
+                  <p className="font-semibold">Expense Usage</p>
+                  <p className="text-sm text-gray-400">How much collected money was used</p>
                 </div>
               </div>
-              <p className="text-2xl font-bold text-yellow-400">₹2,500</p>
+              <p className="text-2xl font-bold text-yellow-400">{expenseShare.toFixed(1)}%</p>
+              <p className="mt-2 text-sm text-gray-400">
+                Based on this month&apos;s collections and expenses.
+              </p>
             </div>
           </div>
         </div>

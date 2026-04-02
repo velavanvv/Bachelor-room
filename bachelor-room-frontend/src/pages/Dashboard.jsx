@@ -212,6 +212,7 @@ const Dashboard = () => {
 
   const handleAddExpense = async (e) => {
     e.preventDefault();
+    const expenseAmount = parseFloat(newExpense.amount);
     
     if (!newExpense.description.trim() || !newExpense.amount) {
       toast.error('Please fill all fields');
@@ -223,11 +224,16 @@ const Dashboard = () => {
       return;
     }
 
+    if (expenseAmount > stats.currentBalance) {
+      toast.error('Expense amount cannot be greater than the current balance.');
+      return;
+    }
+
     try {
       await apiService.createExpense({
         ...newExpense,
         expense_date: newExpense.expense_date.toISOString().split('T')[0],
-        amount: parseFloat(newExpense.amount),
+        amount: expenseAmount,
       });
       
       toast.success('Expense added successfully');

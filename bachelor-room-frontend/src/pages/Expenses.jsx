@@ -71,6 +71,7 @@ const Expenses = () => {
 
   const handleAddExpense = async (e) => {
     e.preventDefault();
+    const expenseAmount = parseFloat(newExpense.amount);
     if (!newExpense.description || !newExpense.amount) {
       toast.error('Please fill all fields');
       return;
@@ -81,10 +82,16 @@ const Expenses = () => {
       return;
     }
 
+    if (expenseAmount > currentBalance) {
+      toast.error('Expense amount cannot be greater than the current balance.');
+      return;
+    }
+
     try {
       await apiService.createExpense({
         ...newExpense,
         expense_date: newExpense.expense_date.toISOString().split('T')[0],
+        amount: expenseAmount,
       });
       
       toast.success('Expense added successfully');
@@ -171,6 +178,11 @@ const Expenses = () => {
               {currentBalance <= 0 && (
                 <div className="mb-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
                   Current balance is zero or below. Add contributions before creating a new expense.
+                </div>
+              )}
+              {currentBalance > 0 && (
+                <div className="mb-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+                  Available balance: ₹{currentBalance.toLocaleString()}
                 </div>
               )}
               <form onSubmit={handleAddExpense} className="space-y-4">
