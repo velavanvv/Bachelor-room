@@ -6,6 +6,7 @@ use App\Models\Expense;
 use App\Models\Wallet;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class ExpenseController extends Controller
 {
@@ -25,7 +26,6 @@ class ExpenseController extends Controller
         ]);
 
         $expense = DB::transaction(function () use ($validated) {
-            $expense = Expense::create($validated);
             $month = date('Y-m', strtotime($validated['expense_date']));
 
             $wallet = Wallet::firstOrCreate(
@@ -36,6 +36,14 @@ class ExpenseController extends Controller
                     'balance' => $this->getCarryForwardBalance($month),
                 ]
             );
+
+            if ($validated['amount'] > $wallet->balance) {
+                throw ValidationException::withMessages([
+                    'amount' => ['Expense amount cannot be greater than the current balance.'],
+                ]);
+            }
+
+            $expense = Expense::create($validated);
 
             $wallet->total_spent += $validated['amount'];
             $wallet->balance -= $validated['amount'];
