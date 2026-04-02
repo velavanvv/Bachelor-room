@@ -186,7 +186,6 @@ const ChatbotWidget = () => {
           <div className="flex items-center justify-between border-b border-white/10 bg-emerald-500/10 px-4 py-4">
             <div>
               <p className="text-sm font-semibold text-white">Room Assistant</p>
-              <p className="text-xs text-emerald-100/70">Powered by SambaNova</p>
             </div>
             <button
               type="button"
