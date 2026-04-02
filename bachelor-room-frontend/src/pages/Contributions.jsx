@@ -11,9 +11,7 @@ import {
   FiCheckCircle,
   FiXCircle,
   FiDownload,
-  FiFilter,
-  FiRefreshCw,
-  FiChevronRight
+  FiFilter
 } from 'react-icons/fi';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -133,14 +131,14 @@ const Contributions = () => {
   }
 
   return (
-    <div className="app-page">
+    <div className="app-page overflow-x-hidden">
       {/* Room Door Header */}
       <div className="app-hero relative min-h-[15rem] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-green-900/20 to-emerald-900/20"></div>
         <div className="container-responsive flex min-h-[15rem] items-center justify-center py-12">
           <div className="text-center relative z-10">
             <h1 className="text-3xl font-bold mb-2">Contributions Management</h1>
-            <p className="mx-auto max-w-md text-sm text-gray-300 sm:text-base">Record member payments faster, check what is pending, and review the month from a layout that behaves better on phones.</p>
+            <p className="mx-auto max-w-md text-sm text-gray-300 sm:text-base">Record member payments, check what is pending, and review each month from one consistent workspace.</p>
           </div>
         </div>
         
@@ -264,12 +262,6 @@ const Contributions = () => {
                     onChange={(e) => setSelectedMonth(e.target.value)}
                     className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
-                  <button
-                    onClick={fetchData}
-                    className="rounded-2xl bg-black/20 p-3 transition-colors hover:bg-black/30"
-                  >
-                    <FiRefreshCw />
-                  </button>
                 </div>
               </div>
 
@@ -350,8 +342,8 @@ const Contributions = () => {
             </div>
 
             {/* Monthly Summary */}
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="app-panel">
                 <div className="flex items-center mb-4">
                   <div className="w-10 h-10 bg-green-900/30 rounded-full flex items-center justify-center mr-4">
                     <FiCheckCircle className="text-green-400" />
@@ -375,7 +367,7 @@ const Contributions = () => {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+              <div className="app-panel">
                 <div className="flex items-center mb-4">
                   <div className="w-10 h-10 bg-blue-900/30 rounded-full flex items-center justify-center mr-4">
                     <FiCalendar className="text-blue-400" />

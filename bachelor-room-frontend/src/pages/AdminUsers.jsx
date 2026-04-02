@@ -8,10 +8,8 @@ import {
   FiUserPlus,
   FiSearch,
   FiFilter,
-  FiRefreshCw,
   FiEdit,
   FiTrash2,
-  FiChevronRight,
   FiUser,
   FiCheckCircle,
   FiXCircle
@@ -120,42 +118,41 @@ const AdminUsers = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+    <div className="app-page overflow-x-hidden">
       {/* Room Door Header */}
-      <div className="relative h-64 bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
+      <div className="app-hero relative min-h-[15rem] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-orange-900/20 to-yellow-900/20"></div>
-        <div className="container-responsive h-full flex items-center justify-center">
+        <div className="container-responsive flex min-h-[15rem] items-center justify-center py-12">
           <div className="text-center relative z-10">
-         
             <h1 className="text-3xl font-bold mb-2">Members Management</h1>
-            <p className="text-gray-400">Manage all room members and their permissions</p>
+            <p className="mx-auto max-w-md text-sm text-gray-300 sm:text-base">Manage room members, roles, and access from the same visual system as the rest of the dashboard.</p>
           </div>
         </div>
         
         {/* Back Button */}
         <button
           onClick={handleBackToRoom}
-          className="absolute top-6 left-6 flex items-center space-x-2 px-4 py-2 bg-gray-800/70 hover:bg-gray-700/70 rounded-lg backdrop-blur-sm transition-colors"
+          className="absolute left-4 top-4 flex items-center space-x-2 rounded-xl bg-black/30 px-4 py-2 backdrop-blur-sm transition-colors hover:bg-black/40 sm:left-6 sm:top-6"
         >
           <FiArrowLeft />
-          <span>Back to Rooms</span>
+          <span className="hidden sm:inline">Back to Rooms</span>
         </button>
         
         {/* Add Member Button */}
         <button
           onClick={() => setShowCreateModal(true)}
-          className="absolute top-6 right-6 flex items-center space-x-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg backdrop-blur-sm transition-colors"
+          className="absolute right-4 top-4 flex items-center space-x-2 rounded-xl bg-orange-600 px-4 py-2 backdrop-blur-sm transition-colors hover:bg-orange-700 sm:right-6 sm:top-6"
         >
           <FiUserPlus />
-          <span>Add Member</span>
+          <span className="hidden sm:inline">Add Member</span>
         </button>
       </div>
 
       {/* Main Content */}
-      <div className="container-responsive mt-3 relative z-10">
+      <div className="container-responsive relative z-10 -mt-6 pb-10 pt-4 sm:-mt-8 sm:pt-6 mobile-safe-pad">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+          <div className="app-panel">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">Total Users</p>
@@ -167,7 +164,7 @@ const AdminUsers = () => {
             </div>
           </div>
           
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+          <div className="app-panel">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">Admins</p>
@@ -181,7 +178,7 @@ const AdminUsers = () => {
             </div>
           </div>
           
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+          <div className="app-panel">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">Active Members</p>
@@ -195,7 +192,7 @@ const AdminUsers = () => {
             </div>
           </div>
           
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+          <div className="app-panel">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">New This Month</p>
@@ -218,28 +215,28 @@ const AdminUsers = () => {
         </div>
 
         {/* Users Table */}
-        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-            <div className="flex items-center space-x-4">
-              <div className="relative">
+        <div className="app-panel mb-8 overflow-hidden">
+          <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div className="min-w-0 flex flex-col gap-4 sm:flex-row sm:items-center sm:space-x-4">
+              <div className="relative w-full sm:w-auto">
                 <FiSearch className="absolute left-3 top-3 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search users..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full sm:w-64"
+                  className="w-full rounded-xl border border-white/10 bg-black/20 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent sm:w-64"
                 />
               </div>
-              <div className="text-sm text-gray-400">
+              <div className="min-w-0 text-sm text-gray-400">
                 {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} found
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
+            <div className="flex w-full sm:w-auto">
+              <div className="flex w-full items-center space-x-2 sm:w-auto">
                 <FiFilter className="text-gray-400" />
                 <select 
-                  className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 sm:flex-none"
                   onChange={(e) => {
                     if (e.target.value === 'all') {
                       setFilteredUsers(users);
@@ -253,13 +250,6 @@ const AdminUsers = () => {
                   <option value="member">Members</option>
                 </select>
               </div>
-              <button
-                onClick={fetchUsers}
-                className="flex items-center space-x-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-              >
-                <FiRefreshCw />
-                <span className="hidden sm:inline">Refresh</span>
-              </button>
             </div>
           </div>
 
@@ -338,53 +328,54 @@ const AdminUsers = () => {
           {/* Mobile Card View */}
           <div className="lg:hidden space-y-4">
             {filteredUsers.map((member) => (
-              <div key={member.id} className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-orange-600 to-yellow-600 rounded-full flex items-center justify-center text-white font-medium text-lg mr-3">
-                      {member.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-medium">{member.name}</p>
-                      <p className="text-sm text-gray-400">{member.email}</p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <select
-                          value={member.role || 'member'}
-                          onChange={(e) => updateUserRole(member.id, e.target.value)}
-                          className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs"
-                          disabled={member.id === user.id}
+              <div key={member.id} className="app-subtle p-4">
+                <div className="flex items-start gap-3">
+                  <div className="h-12 w-12 shrink-0 rounded-full bg-gradient-to-br from-orange-600 to-yellow-600 text-lg font-medium text-white flex items-center justify-center">
+                    {member.name.charAt(0)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex min-w-0 items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium">{member.name}</p>
+                        <p className="break-all text-sm text-gray-400">{member.email}</p>
+                      </div>
+                      <div className="flex shrink-0 space-x-1">
+                        <button
+                          onClick={() => setEditingUser(member)}
+                          className="rounded p-2 text-blue-400 hover:bg-blue-900/30"
                         >
-                          <option value="admin">Admin</option>
-                          <option value="member">Member</option>
-                        </select>
-                        <span className="px-2 py-0.5 text-xs rounded bg-green-900/50 text-green-400">
-                          Active
-                        </span>
+                          <FiEdit />
+                        </button>
+                        <button
+                          onClick={() => deleteUser(member.id)}
+                          disabled={member.id === user.id}
+                          className={`rounded p-2 text-red-400 hover:bg-red-900/30 ${
+                            member.id === user.id ? 'cursor-not-allowed opacity-50' : ''
+                          }`}
+                        >
+                          <FiTrash2 />
+                        </button>
                       </div>
                     </div>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <select
+                        value={member.role || 'member'}
+                        onChange={(e) => updateUserRole(member.id, e.target.value)}
+                        className="min-w-0 rounded px-2 py-1 text-xs bg-gray-700 border border-gray-600"
+                        disabled={member.id === user.id}
+                      >
+                        <option value="admin">Admin</option>
+                        <option value="member">Member</option>
+                      </select>
+                      <span className="rounded bg-green-900/50 px-2 py-0.5 text-xs text-green-400">
+                        Active
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        Joined: {formatDate(member.created_at)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex space-x-1">
-                    <button
-                      onClick={() => setEditingUser(member)}
-                      className="p-2 text-blue-400 hover:bg-blue-900/30 rounded"
-                    >
-                      <FiEdit />
-                    </button>
-                    <button
-                      onClick={() => deleteUser(member.id)}
-                      disabled={member.id === user.id}
-                      className={`p-2 text-red-400 hover:bg-red-900/30 rounded ${
-                        member.id === user.id ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
-                    >
-                      <FiTrash2 />
-                    </button>
-                  </div>
-                </div>
-                <div className="mt-3 pt-3 border-t border-gray-700">
-                  <p className="text-xs text-gray-400">
-                    Joined: {formatDate(member.created_at)}
-                  </p>
                 </div>
               </div>
             ))}
@@ -406,10 +397,10 @@ const AdminUsers = () => {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+        <div className="app-panel">
           <h2 className="text-xl font-bold mb-6">Recent Member Activity</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+            <div className="app-subtle p-4">
               <div className="flex items-center mb-3">
                 <div className="w-8 h-8 bg-green-900/50 rounded-full flex items-center justify-center mr-3">
                   <FiCheckCircle className="text-green-400" />
@@ -420,7 +411,7 @@ const AdminUsers = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+            <div className="app-subtle p-4">
               <div className="flex items-center mb-3">
                 <div className="w-8 h-8 bg-blue-900/50 rounded-full flex items-center justify-center mr-3">
                   <FiUser className="text-blue-400" />
@@ -438,7 +429,7 @@ const AdminUsers = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+            <div className="app-subtle p-4">
               <div className="flex items-center mb-3">
                 <div className="w-8 h-8 bg-purple-900/50 rounded-full flex items-center justify-center mr-3">
                   <FiUserPlus className="text-purple-400" />
@@ -456,7 +447,7 @@ const AdminUsers = () => {
       {/* Create/Edit User Modal */}
       {(showCreateModal || editingUser) && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="app-panel w-full max-w-md max-h-[90vh] overflow-y-auto border-white/10 bg-[linear-gradient(180deg,_rgba(19,27,23,0.95),_rgba(10,15,13,0.98))]">
             <div className="p-6">
               <h3 className="text-xl font-bold mb-4">
                 {editingUser ? 'Edit User' : 'Add New Member'}

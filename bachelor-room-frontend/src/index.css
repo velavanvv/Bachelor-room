@@ -181,7 +181,7 @@
   }
 
   .app-subtle {
-    @apply rounded-2xl border border-white/8 bg-black/20;
+    @apply rounded-2xl border border-white/10 bg-black/20;
   }
 
   .mobile-safe-pad {
@@ -321,4 +321,34 @@
     linear-gradient(rgba(31, 41, 55, 0.1) 1px, transparent 1px),
     linear-gradient(90deg, rgba(31, 41, 55, 0.1) 1px, transparent 1px);
   background-size: 50px 50px;
+}
+
+@keyframes dashboardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dashboardStagger {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dashboard-fade-in {
+  animation: dashboardFadeIn 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dashboard-stagger {
+  animation: dashboardStagger 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }

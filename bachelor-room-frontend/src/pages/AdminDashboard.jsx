@@ -162,30 +162,28 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+    <div className="app-page overflow-x-hidden">
       {/* Admin Room Door Header */}
-      <div className="relative h-64 bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
+      <div className="app-hero relative min-h-[15rem] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/20 to-red-900/20"></div>
-        <div className="container-responsive h-full flex items-center justify-center">
+        <div className="container-responsive flex min-h-[15rem] items-center justify-center py-12">
           <div className="text-center relative z-10">
-         
-            
             <h1 className="text-3xl font-bold mb-2">Admin Control Room</h1>
-            <p className="text-gray-400">Welcome, Administrator {user?.name}</p>
+            <p className="mx-auto max-w-md text-sm text-gray-300 sm:text-base">Welcome, {user?.name}. Review members, contributions, expenses, and wallet health from the admin overview.</p>
           </div>
         </div>
         
         {/* Back Button */}
         <button
           onClick={handleBackToRoom}
-          className="absolute top-6 left-6 flex items-center space-x-2 px-4 py-2 bg-gray-800/70 hover:bg-gray-700/70 rounded-lg backdrop-blur-sm transition-colors"
+          className="absolute left-4 top-4 flex items-center space-x-2 rounded-xl bg-black/30 px-4 py-2 backdrop-blur-sm transition-colors hover:bg-black/40 sm:left-6 sm:top-6"
         >
           <FiArrowLeft />
-          <span>Back to Rooms</span>
+          <span className="hidden sm:inline">Back to Rooms</span>
         </button>
         
         {/* Admin Badge */}
-        <div className="absolute top-6 right-6 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 rounded-lg backdrop-blur-sm">
+        <div className="absolute right-4 top-4 rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-4 py-2 backdrop-blur-sm sm:right-6 sm:top-6">
           <div className="flex items-center space-x-2">
             <FiShield />
             <span className="font-semibold">Administrator</span>
@@ -194,13 +192,13 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container-responsive mt-3 relative z-10">
+      <div className="container-responsive relative z-10 -mt-6 pb-10 pt-4 sm:-mt-8 sm:pt-6 mobile-safe-pad">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {statCards.map((stat, index) => (
             <div 
               key={index}
-              className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+              className="app-panel cursor-pointer transition-all duration-300 hover:-translate-y-1"
               onClick={() => navigate(stat.path)}
             >
               <div className="flex items-start justify-between">
@@ -232,7 +230,7 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent Members */}
           <div className="lg:col-span-2">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+            <div className="app-panel">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">Recent Members</h2>
                 <button 
@@ -245,7 +243,7 @@ const AdminDashboard = () => {
               
               <div className="space-y-4">
                 {users.slice(0, 5).map((member) => (
-                  <div key={member.id} className="flex items-center p-4 bg-gray-800/50 rounded-xl hover:bg-gray-700/50 transition-colors">
+                  <div key={member.id} className="flex items-center rounded-2xl bg-black/20 p-4 transition-colors hover:bg-white/5">
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white font-medium mr-4">
                       {member.name.charAt(0)}
                     </div>
@@ -273,7 +271,7 @@ const AdminDashboard = () => {
 
           {/* Admin Actions */}
           <div className="space-y-6">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700 p-6 shadow-2xl">
+            <div className="app-panel">
               <h2 className="text-xl font-bold mb-6">Admin Actions</h2>
               <div className="space-y-4">
                 {adminActions.map((action, index) => (

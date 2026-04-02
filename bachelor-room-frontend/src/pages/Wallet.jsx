@@ -10,7 +10,6 @@ import {
   FiDollarSign,
   FiCreditCard,
   FiCalendar,
-  FiRefreshCw,
   FiChevronLeft,
   FiChevronRight
 } from 'react-icons/fi';
@@ -20,6 +19,22 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from 'recharts';
 import toast from 'react-hot-toast';
+
+const renderPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, name }) => {
+  if (percent < 0.08) {
+    return null;
+  }
+
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos((-midAngle * Math.PI) / 180);
+  const y = cy + radius * Math.sin((-midAngle * Math.PI) / 180);
+
+  return (
+    <text x={x} y={y} fill="#f8fafc" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={600}>
+      {name}
+    </text>
+  );
+};
 
 const Wallet = () => {
   const navigate = useNavigate();
@@ -94,14 +109,14 @@ const Wallet = () => {
   }
 
   return (
-    <div className="app-page">
+    <div className="app-page overflow-x-hidden">
       {/* Room Door Header */}
       <div className="app-hero relative min-h-[15rem] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-violet-900/20"></div>
         <div className="container-responsive flex min-h-[15rem] items-center justify-center py-12">
           <div className="text-center relative z-10">
             <h1 className="text-3xl font-bold mb-2">Financial Overview</h1>
-            <p className="mx-auto max-w-md text-sm text-gray-300 sm:text-base">See collected money, spending, and balance in a cleaner view that works better on smaller screens.</p>
+            <p className="mx-auto max-w-md text-sm text-gray-300 sm:text-base">See collected money, spending, and balance from a cleaner financial overview.</p>
           </div>
         </div>
         
@@ -207,7 +222,7 @@ const Wallet = () => {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={(entry) => `${entry.name}: ₹${entry.value}`}
+                    label={renderPieLabel}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
@@ -218,9 +233,11 @@ const Wallet = () => {
                   </Pie>
                   <Tooltip 
                     formatter={(value) => [`₹${value}`, 'Amount']}
-                    contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151' }}
+                    contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', color: '#f9fafb' }}
+                    itemStyle={{ color: '#f9fafb' }}
+                    labelStyle={{ color: '#f9fafb' }}
                   />
-                  <Legend />
+                  <Legend wrapperStyle={{ color: '#e5e7eb', paddingTop: '12px' }} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
@@ -286,20 +303,13 @@ const Wallet = () => {
         </div>
 
         {/* Monthly Trends */}
-        <div className="app-panel">
+        <div className="app-panel overflow-hidden">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold">Monthly Trends</h2>
-            <button
-              onClick={fetchWalletData}
-              className="flex items-center space-x-2 rounded-2xl bg-black/20 px-4 py-3 transition-colors hover:bg-black/30"
-            >
-              <FiRefreshCw />
-              <span>Refresh</span>
-            </button>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+            <div className="app-subtle p-4">
               <div className="flex items-center mb-3">
                 <div className="w-10 h-10 bg-blue-900/30 rounded-full flex items-center justify-center mr-4">
                   <FiCreditCard className="text-blue-400" />
@@ -312,7 +322,7 @@ const Wallet = () => {
               <p className="text-2xl font-bold text-blue-400">₹1,250</p>
             </div>
             
-            <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+            <div className="app-subtle p-4">
               <div className="flex items-center mb-3">
                 <div className="w-10 h-10 bg-green-900/30 rounded-full flex items-center justify-center mr-4">
                   <FiTrendingUp className="text-green-400" />
@@ -325,7 +335,7 @@ const Wallet = () => {
               <p className="text-2xl font-bold text-green-400">+15%</p>
             </div>
             
-            <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+            <div className="app-subtle p-4">
               <div className="flex items-center mb-3">
                 <div className="w-10 h-10 bg-yellow-900/30 rounded-full flex items-center justify-center mr-4">
                   <FiCalendar className="text-yellow-400" />

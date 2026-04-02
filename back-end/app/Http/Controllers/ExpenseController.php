@@ -33,7 +33,7 @@ class ExpenseController extends Controller
                 [
                     'total_collected' => 0,
                     'total_spent' => 0,
-                    'balance' => 0,
+                    'balance' => $this->getCarryForwardBalance($month),
                 ]
             );
 
@@ -91,5 +91,12 @@ class ExpenseController extends Controller
     {
         $expenses = Expense::where('expense_date', $date)->get();
         return response()->json($expenses);
+    }
+
+    private function getCarryForwardBalance(string $month): int
+    {
+        return (int) (Wallet::where('month', '<', $month)
+            ->orderBy('month', 'desc')
+            ->value('balance') ?? 0);
     }
 }
