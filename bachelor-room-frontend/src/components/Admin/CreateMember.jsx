@@ -51,11 +51,11 @@ const CreateMember = ({ onSuccess }) => {
   };
 
   return (
-    <div className="card">
-      <h3 className="text-lg font-semibold mb-4">Add New Member</h3>
+    <div>
+      <h3 className="mb-4 text-lg font-semibold text-white">Add New Member</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-sm font-medium text-gray-300">
             Full Name
           </label>
           <input
@@ -63,13 +63,13 @@ const CreateMember = ({ onSuccess }) => {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="input-field"
+            className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             required
           />
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-sm font-medium text-gray-300">
             Email Address
           </label>
           <input
@@ -77,13 +77,13 @@ const CreateMember = ({ onSuccess }) => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="input-field"
+            className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             required
           />
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-sm font-medium text-gray-300">
             Password
           </label>
           <input
@@ -91,14 +91,14 @@ const CreateMember = ({ onSuccess }) => {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="input-field"
+            className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             required
             minLength="6"
           />
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-sm font-medium text-gray-300">
             Confirm Password
           </label>
           <input
@@ -106,7 +106,7 @@ const CreateMember = ({ onSuccess }) => {
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            className="input-field"
+            className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             required
             minLength="6"
           />
@@ -115,7 +115,7 @@ const CreateMember = ({ onSuccess }) => {
         <button
           type="submit"
           disabled={loading}
-          className="btn-primary w-full"
+          className="w-full rounded-xl bg-orange-600 px-4 py-3 font-medium text-white transition-colors hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? 'Creating...' : 'Create Member'}
         </button>

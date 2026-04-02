@@ -43,7 +43,7 @@ class ContributionController extends Controller
                 [
                     'total_collected' => 0,
                     'total_spent' => 0,
-                    'balance' => 0,
+                    'balance' => $this->getCarryForwardBalance($validated['month']),
                 ]
             );
 
@@ -68,5 +68,12 @@ class ContributionController extends Controller
             ->get();
 
         return response()->json($data);
+    }
+
+    private function getCarryForwardBalance(string $month): int
+    {
+        return (int) (Wallet::where('month', '<', $month)
+            ->orderBy('month', 'desc')
+            ->value('balance') ?? 0);
     }
 }

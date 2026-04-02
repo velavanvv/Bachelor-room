@@ -4,15 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import { apiService } from '../services/api';
 import { 
   FiArrowLeft,
-  FiDollarSign,
   FiCalendar,
-  FiFileText,
-  FiUser,
   FiTrash2,
-  FiFilter,
-  FiRefreshCw,
   FiTrendingUp,
-  FiChevronRight,
   FiPlus
 } from 'react-icons/fi';
 import DatePicker from 'react-datepicker';
@@ -26,6 +20,7 @@ const Expenses = () => {
   const [filteredExpenses, setFilteredExpenses] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
+  const [currentBalance, setCurrentBalance] = useState(0);
   const [viewMode, setViewMode] = useState('daily');
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
   const [newExpense, setNewExpense] = useState({
@@ -45,8 +40,12 @@ const Expenses = () => {
 
   const fetchExpenses = async () => {
     try {
-      const response = await apiService.getExpenses();
-      setExpenses(response.data || []);
+      const [expensesResponse, walletResponse] = await Promise.all([
+        apiService.getExpenses(),
+        apiService.getCurrentWallet(),
+      ]);
+      setExpenses(expensesResponse.data || []);
+      setCurrentBalance(parseFloat(walletResponse.data?.balance) || 0);
     } catch (error) {
       console.error('Failed to fetch expenses:', error);
       toast.error('Failed to load expenses');
@@ -74,6 +73,11 @@ const Expenses = () => {
     e.preventDefault();
     if (!newExpense.description || !newExpense.amount) {
       toast.error('Please fill all fields');
+      return;
+    }
+
+    if (currentBalance <= 0) {
+      toast.error('Expenses can only be added when the current balance is above zero.');
       return;
     }
 
@@ -136,14 +140,14 @@ const Expenses = () => {
   }
 
   return (
-    <div className="app-page">
+    <div className="app-page overflow-x-hidden">
       {/* Room Door Header */}
       <div className="app-hero relative min-h-[15rem] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-pink-900/20"></div>
         <div className="container-responsive flex min-h-[15rem] items-center justify-center py-12">
           <div className="text-center relative z-10">
             <h1 className="text-3xl font-bold mb-2">Expense Management</h1>
-            <p className="mx-auto max-w-md text-sm text-gray-300 sm:text-base">Track daily spending, add new expenses quickly, and review monthly totals without fighting the layout on mobile.</p>
+            <p className="mx-auto max-w-md text-sm text-gray-300 sm:text-base">Track daily spending, add expenses quickly, and review totals in the same clean layout as the rest of the dashboard.</p>
           </div>
         </div>
         
@@ -159,11 +163,16 @@ const Expenses = () => {
 
       {/* Main Content */}
       <div className="container-responsive relative z-10 -mt-6 pb-10 pt-4 sm:-mt-8 sm:pt-6 mobile-safe-pad">
-        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-8">
+        <div className="grid grid-cols-1 gap-6 mb-8">
           {/* Add Expense Form */}
           <div className="lg:col-span-2">
             <div className="app-panel">
               <h2 className="text-xl font-bold mb-6">Add New Expense</h2>
+              {currentBalance <= 0 && (
+                <div className="mb-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                  Current balance is zero or below. Add contributions before creating a new expense.
+                </div>
+              )}
               <form onSubmit={handleAddExpense} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">Date</label>
@@ -205,10 +214,11 @@ const Expenses = () => {
                 
                 <button
                   type="submit"
+                  disabled={currentBalance <= 0}
                   className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-red-600 to-pink-600 px-4 py-3 font-medium transition-all duration-300 hover:from-red-700 hover:to-pink-700"
                 >
                   <FiPlus className="mr-2" />
-                  Add Expense
+                  {currentBalance <= 0 ? 'Balance Too Low' : 'Add Expense'}
                 </button>
               </form>
 

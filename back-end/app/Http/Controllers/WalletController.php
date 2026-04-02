@@ -15,7 +15,7 @@ class WalletController extends Controller
             return response()->json([
                 'total_collected' => 0,
                 'total_spent' => 0,
-                'balance' => 0
+                'balance' => $this->getCarryForwardBalance($month)
             ]);
         }
 
@@ -31,10 +31,17 @@ class WalletController extends Controller
             return response()->json([
                 'total_collected' => 0,
                 'total_spent' => 0,
-                'balance' => 0
+                'balance' => $this->getCarryForwardBalance($month)
             ]);
         }
 
         return response()->json($wallet);
+    }
+
+    private function getCarryForwardBalance(string $month): int
+    {
+        return (int) (Wallet::where('month', '<', $month)
+            ->orderBy('month', 'desc')
+            ->value('balance') ?? 0);
     }
 }
