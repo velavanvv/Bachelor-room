@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/AuthContext';
 import Login from './components/Auth/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import RoomDashboard from './pages/RoomDashboard';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -10,6 +11,8 @@ import AdminUsers from './pages/AdminUsers';
 import Contributions from './pages/Contributions';
 import Expenses from './pages/Expenses';
 import Wallet from './pages/Wallet';
+import LiveChatRoom from './pages/LiveChatRoom';
+import ResetPassword from './pages/ResetPassword';
 import { Toaster } from 'react-hot-toast';
 import ChatbotWidget from './components/Common/ChatbotWidget';
 
@@ -67,6 +70,8 @@ function App() {
         />
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           
           <Route path="/room" element={
             <ProtectedRoute>
@@ -112,6 +117,12 @@ function App() {
           <Route path="/wallet" element={
             <ProtectedRoute>
               <Wallet />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/live-chat" element={
+            <ProtectedRoute>
+              <LiveChatRoom />
             </ProtectedRoute>
           } />
           

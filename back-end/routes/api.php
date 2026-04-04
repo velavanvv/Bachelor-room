@@ -14,6 +14,8 @@ Route::get('/test', function () {
 
 // Public auth routes
 Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
+Route::post('/forgot-password', [App\Http\Controllers\ForgotPasswordController::class, 'sendResetLink']);
+Route::post('/reset-password', [App\Http\Controllers\ResetPasswordController::class, 'reset']);
 
 // Protected routes - ONLY auth:sanctum middleware
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -34,6 +36,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
     Route::get('/dashboard/activities', [DashboardController::class, 'activities']);
     Route::post('/chatbot/message', [App\Http\Controllers\ChatbotController::class, 'message']);
+    Route::get('/chat-room/messages', [App\Http\Controllers\ChatRoomController::class, 'index']);
+    Route::post('/chat-room/messages', [App\Http\Controllers\ChatRoomController::class, 'store']);
     
     // Admin routes
     Route::prefix('admin')->middleware('admin')->group(function () {

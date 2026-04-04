@@ -44,6 +44,19 @@ services:
         fromDatabase:
           name: bachelor-room-db
           property: password
+  - type: web
+    name: bachelor-room-chat
+    env: node
+    rootDir: chat-room-server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: BACHELOR_ROOM_API_URL
+        value: https://bachelor-room-backend.onrender.com/api
+      - key: ALLOWED_ORIGINS
+        value: https://bachelor-room.vercel.app,http://localhost:5173
 
 databases:
   - name: bachelor-room-db

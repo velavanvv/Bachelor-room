@@ -7,6 +7,7 @@ import {
   FiCreditCard, 
   FiTrendingDown,
   FiPieChart,
+  FiMessageSquare,
   FiLogOut,
   FiUser,
   FiChevronRight
@@ -123,6 +124,20 @@ const RoomDashboard = () => {
     },
    
     {
+      id: 'live-chat',
+      title: 'Live Chat Room',
+      description: 'Talk with everyone in real time',
+      icon: FiMessageSquare,
+      color: 'from-emerald-500 to-teal-600',
+      doorColor: 'bg-emerald-700',
+      path: '/live-chat',
+      stats: [
+        { label: 'Status', value: 'Live' },
+        { label: 'Room', value: 'Shared' },
+      ],
+      visible: true
+    },
+    {
       id: 'wallet',
       title: 'Safe Room',
       description: 'Financial Summary & Analytics',
@@ -156,6 +171,28 @@ const RoomDashboard = () => {
   const visibleRooms = rooms.filter(room => room.visible);
 
   const isAdminRoom = (roomId) => adminRoomIds.includes(roomId);
+
+  const handleRoomParallaxMove = (event) => {
+    const card = event.currentTarget;
+    const bounds = card.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+    const rotateY = ((x / bounds.width) - 0.5) * 16;
+    const rotateX = (0.5 - (y / bounds.height)) * 14;
+
+    card.style.setProperty('--room-rotate-x', `${rotateX.toFixed(2)}deg`);
+    card.style.setProperty('--room-rotate-y', `${rotateY.toFixed(2)}deg`);
+    card.style.setProperty('--room-glow-x', `${((x / bounds.width) * 100).toFixed(2)}%`);
+    card.style.setProperty('--room-glow-y', `${((y / bounds.height) * 100).toFixed(2)}%`);
+  };
+
+  const resetRoomParallax = (event) => {
+    const card = event.currentTarget;
+    card.style.setProperty('--room-rotate-x', '0deg');
+    card.style.setProperty('--room-rotate-y', '0deg');
+    card.style.setProperty('--room-glow-x', '50%');
+    card.style.setProperty('--room-glow-y', '20%');
+  };
 
   
   const handleRoomClick = (room) => {
@@ -338,7 +375,9 @@ const RoomDashboard = () => {
               <div
                 key={room.id}
                 style={{ animationDelay: `${index * 90}ms` }}
-                className={`dashboard-stagger relative rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 p-6 shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:scale-[1.01] hover:shadow-[0_26px_55px_rgba(0,0,0,0.35)] ${
+                onMouseMove={handleRoomParallaxMove}
+                onMouseLeave={resetRoomParallax}
+                className={`room-parallax-card dashboard-stagger relative rounded-[1.75rem] p-6 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_30px_65px_rgba(0,0,0,0.42)] ${
                  isAdminRoom(room.id) ? 'border-2 border-indigo-500/50 glow-effect' : ''
                 }`}
               >
@@ -350,21 +389,38 @@ const RoomDashboard = () => {
                 )}
 
                 {/* Room Wall */}
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl -z-10"></div>
+                <div className="room-parallax-glow"></div>
+                <div className="room-shell">
+                  <div className="room-shell-ceiling"></div>
+                  <div className="room-shell-wall room-shell-wall-left"></div>
+                  <div className="room-shell-wall room-shell-wall-right"></div>
+                  <div className="room-shell-back"></div>
+                  <div className="room-shell-floor"></div>
+                </div>
                 
                 {/* Room Content */}
                 <div className="relative z-10">
                   {/* Door Frame */}
                   <div className="relative mb-6">
-                    <div className="w-full h-64 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border-4 border-gray-700 flex items-center justify-center overflow-hidden">
+                    <div className="room-door-frame flex h-64 w-full items-center justify-center overflow-hidden rounded-[1.4rem] border-4 border-white/10">
+                      <div className="room-door-light"></div>
+                      <div className="room-door-cast-shadow"></div>
                       {/* Door */}
                       <div
                         id={`door-${room.id}`}
-                        className={`w-48 h-56 ${room.doorColor} rounded-lg border-4 ${room.doorColor.replace('bg-', 'border-')} relative flex cursor-pointer flex-col items-center justify-center transform transition-transform duration-500 ease-out hover:scale-[1.03] ${
+                        className={`room-door-panel w-48 h-56 ${room.doorColor} rounded-lg border-4 ${room.doorColor.replace('bg-', 'border-')} relative flex cursor-pointer flex-col items-center justify-center transform transition-transform duration-500 ease-out hover:scale-[1.03] ${
                           isAdminRoom(room.id) ? 'room-door' : ''
                         }`}
                         onClick={() => handleRoomClick(room)}
                       >
+                        <div className="room-door-depth"></div>
+                        <div className="room-door-shine"></div>
+                        <div className="room-door-top-panel"></div>
+                        <div className="room-door-bottom-panel"></div>
+                        <div className="room-door-rail room-door-rail-top"></div>
+                        <div className="room-door-rail room-door-rail-mid"></div>
+                        <div className="room-door-rail room-door-rail-bottom"></div>
+                        <div className="room-door-knob-plate"></div>
                         {/* Admin Icon */}
                         {isAdminRoom(room.id) && (
                           <div className="absolute -top-3 -right-3 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
@@ -375,11 +431,11 @@ const RoomDashboard = () => {
                         )}
                         
                         {/* Door Knob */}
-                        <div className="absolute right-6 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-yellow-400 rounded-full"></div>
+                        <div className="absolute right-6 top-1/2 z-10 h-6 w-6 -translate-y-1/2 transform rounded-full bg-yellow-400"></div>
                         
                         {/* Door Content */}
-                        <room.icon className="text-white text-4xl mb-3" />
-                        <span className="text-white font-semibold text-lg">{room.title}</span>
+                        <room.icon className="relative z-10 mb-3 text-4xl text-white" />
+                        <span className="relative z-10 text-lg font-semibold text-white">{room.title}</span>
                         
                         {/* Lock icon for admin room when not admin */}
                         {isAdminRoom(room.id) && user?.role !== 'admin' && (

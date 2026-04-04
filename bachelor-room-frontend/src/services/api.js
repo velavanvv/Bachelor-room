@@ -2,6 +2,8 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://bachelor-room.onrender.com/api';
+export const CHAT_ROOM_WS_URL =
+  import.meta.env.VITE_CHAT_ROOM_WS_URL || 'wss://bachelor-room-chat.onrender.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -52,6 +54,10 @@ export const apiService = {
   // Auth
   login: (email, password) => api.post('/login', { email, password }, { skipAuthRedirect: true }),
   logout: () => api.post('/logout'),
+  forgotPassword: (email) =>
+    api.post('/forgot-password', { email }, { skipAuthRedirect: true }),
+  resetPassword: (payload) =>
+    api.post('/reset-password', payload, { skipAuthRedirect: true }),
   
   // Users
   getUsers: () => api.get('/users'),
@@ -81,6 +87,11 @@ export const apiService = {
 
   // Chatbot
   sendChatMessage: (payload) => api.post('/chatbot/message', payload),
+
+  // Live chat room
+  getChatRoomMessages: (room = 'main-room', limit = 50) =>
+    api.get('/chat-room/messages', { params: { room, limit } }),
+  createChatRoomMessage: (payload) => api.post('/chat-room/messages', payload),
 };
 
 export default api;
