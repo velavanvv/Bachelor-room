@@ -23,6 +23,7 @@ const LiveChatRoom = () => {
   const [connectionState, setConnectionState] = useState('connecting');
   const socketRef = useRef(null);
   const reconnectTimerRef = useRef(null);
+  const shouldReconnectRef = useRef(true);
   const endRef = useRef(null);
 
   const title = useMemo(() => 'Room Live Chat', []);
@@ -31,6 +32,7 @@ const LiveChatRoom = () => {
     loadMessages();
 
     return () => {
+      shouldReconnectRef.current = false;
       window.clearTimeout(reconnectTimerRef.current);
       socketRef.current?.close();
     };
@@ -44,6 +46,7 @@ const LiveChatRoom = () => {
     connectSocket();
 
     return () => {
+      shouldReconnectRef.current = false;
       window.clearTimeout(reconnectTimerRef.current);
       socketRef.current?.close();
     };
@@ -77,6 +80,10 @@ const LiveChatRoom = () => {
   };
 
   const scheduleReconnect = () => {
+    if (!shouldReconnectRef.current) {
+      return;
+    }
+
     window.clearTimeout(reconnectTimerRef.current);
     reconnectTimerRef.current = window.setTimeout(() => {
       if (user) {
@@ -92,7 +99,15 @@ const LiveChatRoom = () => {
       return;
     }
 
-    socketRef.current?.close();
+    shouldReconnectRef.current = true;
+
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      return;
+    }
+
+    if (socketRef.current && socketRef.current.readyState === WebSocket.CONNECTING) {
+      return;
+    }
 
     const socketUrl = `${CHAT_ROOM_WS_URL}?token=${encodeURIComponent(token)}&room=${encodeURIComponent(ROOM_ID)}`;
     const socket = new WebSocket(socketUrl);
@@ -101,6 +116,7 @@ const LiveChatRoom = () => {
     socketRef.current = socket;
 
     socket.onopen = () => {
+      window.clearTimeout(reconnectTimerRef.current);
       setConnectionState('connected');
     };
 
@@ -121,11 +137,23 @@ const LiveChatRoom = () => {
     };
 
     socket.onclose = () => {
+      if (socketRef.current === socket) {
+        socketRef.current = null;
+      }
+
+      if (!shouldReconnectRef.current) {
+        return;
+      }
+
       setConnectionState('disconnected');
       scheduleReconnect();
     };
 
     socket.onerror = () => {
+      if (!shouldReconnectRef.current) {
+        return;
+      }
+
       setConnectionState('disconnected');
     };
   };
