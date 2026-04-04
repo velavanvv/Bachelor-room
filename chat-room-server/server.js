@@ -46,12 +46,22 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || "*")
 const connections = new Map();
 const roomConnections = new Map();
 
+function normalizeOrigin(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\/+$/, "")
+    .toLowerCase();
+}
+
 function isOriginAllowed(origin) {
-  if (!origin || allowedOrigins.includes("*")) {
+  const normalizedOrigin = normalizeOrigin(origin);
+  const normalizedAllowedOrigins = allowedOrigins.map(normalizeOrigin);
+
+  if (!normalizedOrigin || normalizedAllowedOrigins.includes("*")) {
     return true;
   }
 
-  return allowedOrigins.includes(origin);
+  return normalizedAllowedOrigins.includes(normalizedOrigin);
 }
 
 async function apiRequest(requestPath, options = {}) {
@@ -331,11 +341,15 @@ const server = http.createServer((request, response) => {
 server.on("upgrade", async (request, socket) => {
   try {
     if (request.headers.upgrade?.toLowerCase() !== "websocket") {
+      console.error("Rejected upgrade: missing websocket header");
       socket.end("HTTP/1.1 400 Bad Request\r\n\r\n");
       return;
     }
 
     if (!isOriginAllowed(request.headers.origin)) {
+      console.error(
+        `Rejected upgrade: origin ${request.headers.origin || "unknown"} is not allowed. Allowed origins: ${allowedOrigins.join(", ")}`
+      );
       socket.end("HTTP/1.1 403 Forbidden\r\n\r\n");
       return;
     }
@@ -347,6 +361,7 @@ server.on("upgrade", async (request, socket) => {
     const socketKey = request.headers["sec-websocket-key"];
 
     if (!socketKey) {
+      console.error("Rejected upgrade: missing Sec-WebSocket-Key");
       socket.end("HTTP/1.1 400 Bad Request\r\n\r\n");
       return;
     }
@@ -380,11 +395,16 @@ server.on("upgrade", async (request, socket) => {
       user,
     });
 
+    console.log(
+      `WebSocket connected for user ${user?.id ?? "unknown"} in room ${room} from origin ${request.headers.origin || "unknown"}`
+    );
+
     socket.on("data", (chunk) => parseFrames(socket, chunk));
     socket.on("close", () => detachSocket(socket));
     socket.on("end", () => detachSocket(socket));
     socket.on("error", () => detachSocket(socket));
   } catch (error) {
+    console.error("Rejected upgrade due to authentication or server error:", error);
     socket.end("HTTP/1.1 401 Unauthorized\r\n\r\n");
   }
 });
