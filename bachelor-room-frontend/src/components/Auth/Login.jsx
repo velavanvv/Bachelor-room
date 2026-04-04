@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
 import toast from 'react-hot-toast';
@@ -236,9 +237,9 @@ const Login = () => {
                 />
                 <span className="ml-2">Remember me</span>
               </label>
-              <button type="button" className="text-emerald-300 transition-colors hover:text-emerald-200">
+              <Link to="/forgot-password" className="text-emerald-300 transition-colors hover:text-emerald-200">
                 Forgot password?
-              </button>
+              </Link>
             </div>
 
             <button

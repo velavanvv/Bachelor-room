@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FiUser, FiBell, FiSearch, FiChevronDown } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -151,7 +153,7 @@ const Navbar = () => {
                         Profile Settings
                       </button>
                       <button
-                        onClick={() => toast('Please use the forgot password option on login or contact admin.')}
+                        onClick={() => navigate('/forgot-password')}
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Change Password

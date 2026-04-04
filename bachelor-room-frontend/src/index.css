@@ -352,3 +352,238 @@
 .dashboard-stagger {
   animation: dashboardStagger 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+.room-parallax-card {
+  --room-rotate-x: 0deg;
+  --room-rotate-y: 0deg;
+  --room-glow-x: 50%;
+  --room-glow-y: 20%;
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  perspective: 1300px;
+  background: linear-gradient(180deg, rgba(12, 19, 17, 0.96), rgba(5, 8, 7, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.34);
+  transform: perspective(1300px) rotateX(var(--room-rotate-x)) rotateY(var(--room-rotate-y));
+}
+
+.room-parallax-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at var(--room-glow-x) var(--room-glow-y), rgba(255, 255, 255, 0.18), transparent 22%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 44%);
+  pointer-events: none;
+}
+
+.room-parallax-glow {
+  position: absolute;
+  inset: 12px;
+  border-radius: 24px;
+  background: radial-gradient(circle at var(--room-glow-x) var(--room-glow-y), rgba(16, 185, 129, 0.12), transparent 30%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+.room-shell {
+  position: absolute;
+  inset: 18px;
+  border-radius: 24px;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.room-shell-ceiling,
+.room-shell-wall,
+.room-shell-back,
+.room-shell-floor {
+  position: absolute;
+  border-radius: 20px;
+}
+
+.room-shell-ceiling {
+  left: 10%;
+  right: 10%;
+  top: 0;
+  height: 38px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  transform: rotateX(76deg) translateZ(34px);
+  transform-origin: center top;
+}
+
+.room-shell-wall {
+  top: 12%;
+  bottom: 16%;
+  width: 54px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(7, 15, 12, 0.9));
+}
+
+.room-shell-wall-left {
+  left: 0;
+  transform: rotateY(67deg) translateZ(20px);
+  transform-origin: left center;
+}
+
+.room-shell-wall-right {
+  right: 0;
+  transform: rotateY(-67deg) translateZ(20px);
+  transform-origin: right center;
+}
+
+.room-shell-back {
+  inset: 10% 9% 14%;
+  background:
+    linear-gradient(180deg, rgba(31, 41, 55, 0.26), rgba(3, 7, 6, 0.94)),
+    radial-gradient(circle at top, rgba(56, 189, 135, 0.08), transparent 26%);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transform: translateZ(-16px);
+}
+
+.room-shell-floor {
+  left: 6%;
+  right: 6%;
+  bottom: 0;
+  height: 96px;
+  background:
+    linear-gradient(180deg, rgba(16, 185, 129, 0.06), rgba(0, 0, 0, 0.72)),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 2px, transparent 2px 44px);
+  transform: rotateX(78deg) translateZ(6px);
+  transform-origin: center bottom;
+}
+
+.room-door-frame {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(20, 15, 11, 0.96), rgba(8, 7, 5, 0.98)),
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.08), transparent 24%);
+  transform: translateZ(36px);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 0 28px rgba(0, 0, 0, 0.35),
+    0 24px 40px rgba(0, 0, 0, 0.28);
+}
+
+.room-door-light {
+  position: absolute;
+  inset: 6% 18% auto;
+  height: 90px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.12), transparent 65%);
+  filter: blur(10px);
+}
+
+.room-door-cast-shadow {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  width: 68%;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  filter: blur(12px);
+  transform: translateX(-50%) translateZ(-8px);
+}
+
+.room-door-panel {
+  transform-style: preserve-3d;
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.18), transparent 16%, transparent 84%, rgba(0, 0, 0, 0.24)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.18));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset -24px 0 28px rgba(0, 0, 0, 0.18),
+    inset 0 0 22px rgba(0, 0, 0, 0.16),
+    0 24px 35px rgba(0, 0, 0, 0.34);
+}
+
+.room-door-depth {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.15), transparent 20%, transparent 80%, rgba(0, 0, 0, 0.18));
+  transform: translateZ(-18px) translateX(8px);
+}
+
+.room-door-shine {
+  position: absolute;
+  left: 14%;
+  top: 10%;
+  width: 28%;
+  height: 66%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), transparent);
+  filter: blur(6px);
+  opacity: 0.65;
+}
+
+.room-door-top-panel,
+.room-door-bottom-panel {
+  position: absolute;
+  left: 16%;
+  right: 18%;
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02) 22%, rgba(0, 0, 0, 0.12) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 10px 12px 18px rgba(255, 255, 255, 0.04),
+    inset -14px -18px 24px rgba(0, 0, 0, 0.18);
+}
+
+.room-door-top-panel {
+  top: 12%;
+  height: 28%;
+}
+
+.room-door-bottom-panel {
+  bottom: 14%;
+  height: 34%;
+}
+
+.room-door-rail {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(0, 0, 0, 0.2));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.room-door-rail-top {
+  top: 8%;
+}
+
+.room-door-rail-mid {
+  top: 46%;
+}
+
+.room-door-rail-bottom {
+  bottom: 8%;
+}
+
+.room-door-knob-plate {
+  position: absolute;
+  right: 12%;
+  top: 37%;
+  width: 22px;
+  height: 52px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(250, 204, 21, 0.95), rgba(180, 83, 9, 0.9));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+    0 0 14px rgba(245, 158, 11, 0.18);
+}
+
+@media (max-width: 1023px) {
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .room-parallax-card,
+  .room-door,
+  .room-door-panel {
+    transition: none;
+  }
+}
