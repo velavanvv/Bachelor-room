@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://bachelor-room.onrender.com/api';
 export const CHAT_ROOM_WS_URL =
-  import.meta.env.VITE_CHAT_ROOM_WS_URL || 'wss://bachelor-room-chat.onrender.com';
+  import.meta.env.VITE_CHAT_ROOM_WS_URL || 'wss://bachelor-room-1.onrender.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
