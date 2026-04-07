@@ -14,10 +14,12 @@ class ChatbotController extends Controller
 {
     private function sanitizeReply(string $reply): string
     {
-        $cleaned = preg_replace('/<think>.*?<\/think>/si', '', $reply) ?? $reply;
+        $cleaned = preg_replace('/<think>[\s\S]*?(<\/think>|$)/i', '', $reply) ?? $reply;
         $cleaned = preg_replace('/^\s*#+\s*/m', '', $cleaned) ?? $cleaned;
 
-        return trim($cleaned);
+        $cleaned = trim($cleaned);
+
+        return $cleaned !== '' ? $cleaned : 'I could not format that response cleanly. Please ask again.';
     }
 
     private function buildRoomContext(Request $request): string
