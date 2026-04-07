@@ -104,8 +104,9 @@ function requireLogin() {
 }
 
 function sanitizeReply(reply) {
-  const withoutThinking = reply.replace(/<think>[\s\S]*?<\/think>/gi, "");
-  return withoutThinking.replace(/^\s*#+\s*/gm, "").trim();
+  const withoutThinking = reply.replace(/<think>[\s\S]*?(<\/think>|$)/gi, "");
+  const cleaned = withoutThinking.replace(/^\s*#+\s*/gm, "").trim();
+  return cleaned || "I could not format that response cleanly. Please ask again.";
 }
 
 async function sambaNovaRequest(prompt, history = []) {
