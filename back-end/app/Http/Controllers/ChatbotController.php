@@ -7,6 +7,7 @@ use App\Models\MonthlyContribution;
 use App\Models\User;
 use App\Models\Wallet;
 use Carbon\Carbon;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -35,7 +36,7 @@ class ChatbotController extends Controller
             ->get();
         $recentExpenses = Expense::with('user')
             ->orderByDesc('expense_date')
-            ->limit(5)
+            ->limit(3)
             ->get();
 
         $paidCount = $monthlyContributions->where('status', 'paid')->count();
@@ -50,7 +51,7 @@ class ChatbotController extends Controller
             );
         })->implode('; ');
 
-        $recentContributionSummary = $monthlyContributions->take(5)->map(function ($contribution) {
+        $recentContributionSummary = $monthlyContributions->take(3)->map(function ($contribution) {
             return sprintf(
                 '%s paid %s (%s)',
                 $contribution->user->name ?? 'Unknown',
@@ -106,7 +107,7 @@ class ChatbotController extends Controller
 
         $history = collect($validated['history'] ?? [])
             ->filter(fn ($item) => !empty($item['role']) && !empty($item['content']))
-            ->take(-8)
+            ->take(-4)
             ->map(function ($item) {
                 return [
                     'role' => $item['role'] === 'assistant' ? 'assistant' : 'user',
@@ -123,24 +124,32 @@ class ChatbotController extends Controller
         );
         $roomContext = $this->buildRoomContext($request);
 
-        $response = Http::timeout(30)
-            ->withToken($apiKey)
-            ->post('https://api.sambanova.ai/v1/chat/completions', [
-                'model' => $model,
-                'messages' => [
-                    [
-                        'role' => 'system',
-                        'content' => $systemPrompt . "\n\n" . $roomContext,
+        try {
+            $response = Http::connectTimeout(10)
+                ->timeout(20)
+                ->retry(1, 500)
+                ->withToken($apiKey)
+                ->post('https://api.sambanova.ai/v1/chat/completions', [
+                    'model' => $model,
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' => $systemPrompt . "\n\n" . $roomContext,
+                        ],
+                        ...$history,
+                        [
+                            'role' => 'user',
+                            'content' => $validated['message'],
+                        ],
                     ],
-                    ...$history,
-                    [
-                        'role' => 'user',
-                        'content' => $validated['message'],
-                    ],
-                ],
-                'temperature' => 0.7,
-                'max_tokens' => 512,
-            ]);
+                    'temperature' => 0.5,
+                    'max_tokens' => 320,
+                ]);
+        } catch (ConnectionException $exception) {
+            return response()->json([
+                'message' => 'The assistant is taking too long to respond right now. Please try again in a moment.',
+            ], 504);
+        }
 
         if ($response->failed()) {
             return response()->json([
